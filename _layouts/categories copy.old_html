@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+<style>
+h2 {
+ position: center;
+  right: 5px;
+  top: 150px;
+}
+.include {
+  position: absolute;
+  left: 120px;
+  top: 120px;
+}
+.myinclude {
+  position: float;
+
+}
+</style>
+
+  {%- include head.html -%}
+
+  <body>
+
+  {%- include header.html -%}
+<main class="page-content" aria-label="Content" style="background-color:#FFFFFF;">
+
+<div class="include">
+<h2 style="color:#004792;">Categories</h2>
+  {%- include cat.html -%}
+</div>
+</main>
+
+  {%- include footer.html -%}
+
+  </body>
+
+</html>

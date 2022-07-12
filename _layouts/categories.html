@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+<style>
+h2 {
+ position: center;
+  right: 5px;
+  top: 150px;
+}
+.include {
+  position: absolute;
+  left: 120px;
+  top: 120px;
+}
+.myinclude {
+  position: float;
+
+}
+
+.center {
+    display: inline-block;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+</style>
+  {%- include head.html -%}
+
+  <body>
+
+  {%- include header.html -%}
+<main class="page-content" aria-label="Content" style="background-color:#FFFFFF;">
+
+<div class="center">
+<!--
+<h2 style="color:#004792;">Categories</h2>
+-->
+<p><a href="{{ "/" | relative_url }}">
+  <img src="/images/logo.png" alt="Tom Blog" title="Tomislav Kranjec's Blog" style="width:50px">
+  </a></p>  
+
+  {%- include cat.html -%}
+</div>
+</main>
+
+  {%- include footer.html -%}
+
+  </body>
+
+</html>
