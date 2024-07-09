@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Five easy steps to configure static VxLAN Part 1 | Tomislav Kranjec’s Blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Five easy steps to configure static VxLAN Part 1" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In this blog post I will cover static VxLAN tunnels, it means no multicast flood and learning or BGP with EVPN signalling. Part 1 will cover “Static VxLAN tunnels between two Linux hosts” and you could have guessed already that there will be Part 2 and Part 3, or even more, who knows. Future subjects of blog posts will be kept secret for now.😉" />
+<meta property="og:description" content="In this blog post I will cover static VxLAN tunnels, it means no multicast flood and learning or BGP with EVPN signalling. Part 1 will cover “Static VxLAN tunnels between two Linux hosts” and you could have guessed already that there will be Part 2 and Part 3, or even more, who knows. Future subjects of blog posts will be kept secret for now.😉" />
+<link rel="canonical" href="http://0.0.0.0:4000/vxlan/static_vxlan_part1/" />
+<meta property="og:url" content="http://0.0.0.0:4000/vxlan/static_vxlan_part1/" />
+<meta property="og:site_name" content="Tomislav Kranjec’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-10-01T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Five easy steps to configure static VxLAN Part 1" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://0.0.0.0:4000/vxlan/static_vxlan_part1/"},"url":"http://0.0.0.0:4000/vxlan/static_vxlan_part1/","headline":"Five easy steps to configure static VxLAN Part 1","dateModified":"2021-10-01T00:00:00+00:00","datePublished":"2021-10-01T00:00:00+00:00","description":"In this blog post I will cover static VxLAN tunnels, it means no multicast flood and learning or BGP with EVPN signalling. Part 1 will cover “Static VxLAN tunnels between two Linux hosts” and you could have guessed already that there will be Part 2 and Part 3, or even more, who knows. Future subjects of blog posts will be kept secret for now.😉","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Tomislav Kranjec's Blog" />
+<!-- Favicon head tag -->
+<link rel="shortcut icon" type="image/ico" href="/images/t.png">
+<link rel="shortcut icon" sizes="196x196" href="/images/t.png">
+<link rel="apple-touch-icon" href="/images/t.png">
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Tomislav Kranjec&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+        <div class="trigger"><a class="page-link" href="/categories/">Categories</a><a class="page-link" href="/downloads/">Downloads</a><a class="page-link" href="/mycerts/">My Certs</a><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/subscribe/">Subscribe</a></div>
+      </nav></div>
+      <!-- Below we can add social media buttons, buttons we can find inside _includes footer -->
+   <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/tomk39" title="tomk39"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://www.linkedin.com/in/tkranjec" title="tkranjec"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg></a></li><li><a rel="me" href="https://twitter.com/tkranjec" title="tkranjec"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" style="color:#074080" itemprop="name headline">Five easy steps to configure static VxLAN Part 1</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2021-10-01T00:00:00+00:00" itemprop="datePublished">
+        Oct 1, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p align="center">
+<img src="/images/static_vxlan/vxlan_tunnel.jpg" alt="VxLAN Overlay Ubuntu Intro" title="Introduction to VxLAN" /> 
+</p>
+<p>In this blog post I will cover static VxLAN tunnels, it means no multicast flood and learning or BGP with EVPN signalling.
+Part 1 will cover “Static VxLAN tunnels between two Linux hosts” and you could have guessed already that there will be Part 2 and Part 3, or even more, who knows.
+Future subjects of blog posts will be kept secret for now.😉</p>
+
+<h3 id="introduction-to-vxlan---virtual-extensible-lan"><span style="color:#074080">Introduction to VxLAN - Virtual Extensible LAN</span></h3>
+<p style="text-align: justify;">
+I will try not to bother you with heaps of theory that you can find in the books or on the Internet. However I will mention some important facts about VxLAN.
+So, What is VxLAN? It is just yet another encapsulation, which allows you transporting L2 frames over L3 network and that way extending L2 domain. Moreover, it provides flexibility and scalability and solve limitations of 4096 vlans. Also it introduces overhead of 16 bytes (UDP 8 bytes + VxLAN header 8 Bytes). So because of that the underlay network should support MTU size 1600 bytes, not less.
+VxLAN adds header to original L2 frame and encapsulates all to UDP and transport via underlay IP network.
+VTEPs (VxLAN Tunnel Endpoint) are the points on network (server) nodes where traffic will be packed to encapsulation and on remote point unpack and send to final destination. 
+</p>
+<p>Below you can see L2 frame before and after encapsulation to VxLAN.</p>
+<p align="center">
+  <img src="/images/static_vxlan/vxlan.jpg" alt="L2 frame, VxLAN" title="L2 Frame inside VxLAN" />
+</p>
+
+<p>It’s time to stop talking and start lab configuration.</p>
+
+<h3 id="part-1-static-vxlan-between-two-linux-hosts"><span style="color:#074080">Part 1 Static VxLAN between two Linux hosts</span></h3>
+<p>In Part 1 I will cover the case when we have two physical servers and the requirement is to connect virtual machines to one subnet.
+For the sake of simplicity, physical servers will be deployed as virtual machines on baremetal KVM host and they will represented as “srv” and “srv1”. Nested VMs will be simulated with Linux network namespaces. This way we can save hardware resources on KVM host. Details on how everything is interconnected you can find below on the network diagram.</p>
+
+<p align="center">
+  <img src="/images/static_vxlan/net_diag.jpg" alt="VxLAN, VTEP, Overlay Network" title="Network diagram VxLAN between Ubuntu KVM hosts" />
+</p>
+
+<p><strong>Prerequisites for servers (virtual machines):</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">VM name</th>
+      <th style="text-align: left">OS Version</th>
+      <th style="text-align: left">Extra installed SW</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">srv</td>
+      <td style="text-align: left">Ubuntu 20.04</td>
+      <td style="text-align: left">bridge-utils</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">srv1</td>
+      <td style="text-align: left">Ubuntu 20.04</td>
+      <td style="text-align: left">bridge-utils</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong><span style="color:#074080">Step 1. Run VMs and install bridge-utils</span></strong></p>
+
+<p>Let’s assume that virtual machines “srv” and “srv1” are successfully deployed on KVM host and bridge-utils were installed on both VMs using the command below:</p>
+
+<p><code>apt install bridge-utils</code></p>
+
+<p>version of bridge-utils we can check from CLI from srv and srv1 with the following command:</p>
+
+<p><code>apt list | grep bridge-utils</code></p>
+
+<p>output should be</p>
+
+<p><strong><code>bridge-utils/focal,now 1.6-2ubuntu1 amd64 [installed]</code></strong></p>
+
+<p>version can vary.</p>
+
+<p><strong><span style="color:#074080">Step 2. Create and configure namespaces, bridges and veth interfaces pairs </span></strong></p>
+
+<p>Creation of namespaces.</p>
+
+<p><u>Apply configuration on srv.</u></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns add vm3 
+</code></pre></div></div>
+<p><u>Apply configuration on srv1.</u></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns add vm1
+</code></pre></div></div>
+
+<p>Creation of bridges on both host VMs.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add br-vxlan type bridge
+ip link set br-vxlan up
+ip link set mtu 9000 dev br-vxlan
+</code></pre></div></div>
+<p>Disable spanning-tree on the bridges</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>brctl stp br-vxlan off
+</code></pre></div></div>
+<p>Creation of veth interfaces on both host VMs.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add veth0 type veth peer veth1
+ip link set up veth0
+ip link set veth0 master br-vxlan
+</code></pre></div></div>
+<p><u>Apply configuration on srv.</u><br />
+Adding IP address on veth1 and bring interface up</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns exec vm3 ip a a 192.168.22.1/24 dev veth1
+ip netns exec vm3 ip link set up veth1
+</code></pre></div></div>
+<p><u>Apply configuration on srv1.</u><br />
+Adding IP address on veth1 and bring interface up.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns exec vm1 ip a a 192.168.22.2/24 dev veth1
+ip netns exec vm1 ip link set up veth1
+</code></pre></div></div>
+
+<p><strong><span style="color:#074080">Step 3. Configuration of  VxLAN Tunnel</span></strong></p>
+
+<p><u>Creation of VxLAN tunnel interface vx0 on srv and srv1.</u></p>
+
+<p>Create VxLAN tunnel interface with VNI 100.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add vx0 type vxlan id 100 local 192.168.100.20 remote 192.168.100.21 dev ens0 dstport 4789
+</code></pre></div></div>
+<p>Add IP address on tunnel and bring up interface.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip a a 192.168.1.1/24 dev vx0
+ip link set vx0 up
+</code></pre></div></div>
+<p>Add VxLAN tunnel interface to specific bridge.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx0 master br-vxlan
+</code></pre></div></div>
+<p><u>Apply configuration on srv1.</u></p>
+
+<p>Create VxLAN tunnel interface with VNI 100.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add vx0 type vxlan id 100 local 192.168.100.21 remote 192.168.100.20 dev ens0 dstport 4789
+</code></pre></div></div>
+<p>Add IP address on tunnel and bring up interface.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip a a 192.168.1.2/24 dev vx0
+ip link set vx0 up
+</code></pre></div></div>
+<p>Add VxLAN tunnel interface to specific bridge.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx0 master br-vxlan
+</code></pre></div></div>
+
+<p><strong><span style="color:#074080">Step 4. Add static MAC record to forwarding database</span></strong></p>
+
+<p><u>Apply configuration on srv.</u></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bridge fdb append 00:00:00:00:00:00 dev vx0 dst 192.168.100.21
+</code></pre></div></div>
+
+<p><u>Apply configuration on srv1.</u></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bridge fdb append 00:00:00:00:00:00 dev vx0 dst 192.168.100.20
+</code></pre></div></div>
+
+<p><strong><span style="color:#074080">Step 5. Connectivity check </span></strong></p>
+
+<p>Run PING command from both VMs (namespaces).
+<img style="center" src="/images/static_vxlan/vm1_ping_vm3.jpg" alt="Ping from namespace" title="Connectivity check with PING command" /></p>
+
+<p><u>Issue ping from VM3 (namespace)</u></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm3 ping 192.168.22.2 -- &gt; remote IP inside namespace VM1
+</code></pre></div></div>
+<p><u>Issue ping from VM1 (namespace)</u></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm1 ping 192.168.22.1 -- &gt; remote IP inside namespace VM3
+</code></pre></div></div>
+<p>Below is capture which is prove that all ICMP packets (request, reply) were encapsulated to VxLAN.
+<img style="float" width="750" height="400" src="/images/static_vxlan/vm3_ping_vm1_pcap.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
+
+<p><br />
+<strong><a href="/vxlan/static-vxlan-part2/index.html" target="_blank">Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth</a></strong><br />
+<strong><a href="/vxlan/static-vxlan-part3/index.html" target="_blank">Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway</a></strong><br />
+<strong><a href="/vxlan/static-vxlan-part4/index.html" target="_blank">Part 4 Static VxLAN Data Center Interconnect</a></strong><br />
+<br /></p>
+
+  </div><a class="u-url" href="/vxlan/static_vxlan_part1/" hidden></a>
+  <div class="post-categories">
+    
+    <h5>categories: 
+    <a href="/categories/#VxLAN">VxLAN</a>
+    
+    
+  </h5>
+  </div>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>RSS Feed</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</p>
+      </div>
+<!-- below were social media buttons -->
+
+  </div>
+
+</footer>
+</body>
+
+</html>

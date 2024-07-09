@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Cisco ACI Fabric - APIC Day 1 configuration | Tomislav Kranjec’s Blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Cisco ACI Fabric - APIC Day 1 configuration" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator." />
+<meta property="og:description" content="This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator." />
+<link rel="canonical" href="http://0.0.0.0:4000/aci/aci-apic-initial-setup/" />
+<meta property="og:url" content="http://0.0.0.0:4000/aci/aci-apic-initial-setup/" />
+<meta property="og:site_name" content="Tomislav Kranjec’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-12-01T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Cisco ACI Fabric - APIC Day 1 configuration" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://0.0.0.0:4000/aci/aci-apic-initial-setup/"},"url":"http://0.0.0.0:4000/aci/aci-apic-initial-setup/","headline":"Cisco ACI Fabric - APIC Day 1 configuration","dateModified":"2022-12-01T00:00:00+00:00","datePublished":"2022-12-01T00:00:00+00:00","description":"This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Tomislav Kranjec's Blog" />
+<!-- Favicon head tag -->
+<link rel="shortcut icon" type="image/ico" href="/images/t.png">
+<link rel="shortcut icon" sizes="196x196" href="/images/t.png">
+<link rel="apple-touch-icon" href="/images/t.png">
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Tomislav Kranjec&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+        <div class="trigger"><a class="page-link" href="/categories/">Categories</a><a class="page-link" href="/downloads/">Downloads</a><a class="page-link" href="/mycerts/">My Certs</a><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/subscribe/">Subscribe</a></div>
+      </nav></div>
+      <!-- Below we can add social media buttons, buttons we can find inside _includes footer -->
+   <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/tomk39" title="tomk39"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://www.linkedin.com/in/tkranjec" title="tkranjec"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg></a></li><li><a rel="me" href="https://twitter.com/tkranjec" title="tkranjec"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" style="color:#074080" itemprop="name headline">Cisco ACI Fabric - APIC Day 1 configuration</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2022-12-01T00:00:00+00:00" itemprop="datePublished">
+        Dec 1, 2022
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p align="center">
+<img src="/images/apic_day_0_config/apic.jpg" alt="Cisco ACI APIC" title="Cisco APIC interconnects" />  
+</p>
+<p style="text-align: justify;">
+This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator. 
+</p>
+
+<p><strong>0.</strong> In your favorite browser address bar add <strong><em>https://oob.ip.address</em></strong>. Use IP address what you set during APIC initial configuration.</p>
+
+<p><img class="center" width="800" height="400" src="/images/acisim_init_conf/login_screen2.jpg" alt="APIC Login" title="APIC Login" /></p>
+
+<p><strong>Cisco ACI Fabric APIC ver 5.2 supported browsers:</strong></p>
+<ul>
+  <li>Chrome version 59 (at minimum)</li>
+  <li>Firefox version 54 (at minimum)</li>
+  <li>Internet Explorer version 11 (at minimum)</li>
+  <li>Safari version 10 (at minimum)</li>
+</ul>
+
+<p><strong>1.</strong> After what you will login it will appear Cisco APIC welcome screen, looks nice. Just press <strong>Let’s go</strong> as this white button suggesting.
+<img class="center" width="800" height="400" src="/images/apic_day_0_config/1.jpg" alt="APIC Welcome Screen" title="APIC Welcome Screen" /></p>
+
+<p><strong>2.</strong> One more screen from APIC this one is important as it will provided you information about:</p>
+<ul>
+  <li>New features for installed APIC version of APIC.</li>
+  <li>Updated scalability numbers.</li>
+  <li>Very good resources and knowledge base for ACI fabric and APIC clusters.<br />
+After what you reviewed all interesting things pres <strong>Start ACI Fabric Setup</strong> button.</li>
+</ul>
+
+<p><img class="center" width="800" height="470" src="/images/apic_day_0_config/2.jpg" alt="APIC Release notes" title="APIC Release notes" /></p>
+
+<p><strong>3.</strong> Below we can see the most important sections which should be configured before any service configuration on ACI.</p>
+
+<p>I would like to suggest following order:</p>
+<ol>
+  <li>Add leaf and spine to Cisco ACI Fabric.</li>
+  <li>NTP server configuration.</li>
+  <li>DNS server configuration.</li>
+  <li>BGP RR configuration for Spine.</li>
+</ol>
+
+<p><img class="center" width="800" height="450" src="/images/apic_day_0_config/3.jpg" alt="APIC Basic service setup" title="APIC Basic service setup" /></p>
+
+<p><strong>4.</strong> Add first leaf to Cisco ACI Fabric, for serial number we will use TEP-1-102, 101 and 103 as this is Cisco ACI simulator on real Cisco ACI Fabric you will have serial numbers in following format F1234A768. For node ID choose unique number, once when you tied node ID to serial number you will not be able to change on the fly. If you would like to change you will need to do decommissioning and commissioning with new node ID. Switch name you can change anytime if you will not like assigned during initial switch provisioning.</p>
+
+<p><img class="center" width="600" height="s 200" src="/images/apic_day_0_config/4.jpg" alt="APIC spine leaf membership" title="APIC spine leaf membership" /></p>
+
+<p><strong>5.</strong> Here you should pay attention  and check is it switch in <strong>Registering</strong> phase, if you notice some other messages please stop and perform tshoot.</p>
+
+<p><img class="center" width="800" height="400" src="/images/apic_day_0_config/5.jpg" alt="APIC add leaf to membership" title="APIC add leaf to membership" /></p>
+
+<p><strong>6.</strong> Once when is done we should see that switch is successfully <strong>Register</strong> as we can see below for leaf with node ID 101.</p>
+
+<p><img class="center" width="800" height="350" src="/images/apic_day_0_config/6.jpg" alt="APIC add leaf to membership" title="APIC add leaf to membership" /></p>
+
+<p><strong>7.</strong> Same you should repeat for all Spine switches too, below you can see <strong>Registering</strong> of spine with node ID 103.</p>
+
+<p><img class="center" width="800" height="350" src="/images/apic_day_0_config/7.jpg" alt="APIC add spine to membership" title="APIC add spine to membership" /></p>
+
+<p><strong>8.</strong> And Spine with node ID 103 has been successfully <strong>Register</strong>.</p>
+
+<p><img class="center" width="800" height="350" src="/images/apic_day_0_config/8.jpg" alt="APIC add spine to membership" title="APIC add spine to membership" /></p>
+
+<p><strong>9.</strong> Based on workflow from point #3 I will proceed with NTP configuration. You can choose time format from <strong>local</strong> or <strong>utc</strong>. Use <strong>plus</strong> sign for adding one or more NTP servers, one of them you can set like preferable.</p>
+
+<p><img class="center" width="800" height="400" src="/images/apic_day_0_config/9.jpg" alt="APIC NTP Configuration" title="APIC NTP Configuration" /></p>
+
+<p><strong>10.</strong> In the lab for NTP server I use public Google NTP server just for test.
+<img class="center" width="800" height="450" src="/images/apic_day_0_config/10.jpg" alt="APIC NTP Configuration" title="APIC NTP Configuration" /></p>
+
+<p><strong>11.</strong> Here I will add Google DNS server just for test. Usually you will use internal DNS. Don’t forget to add DNS records for leaf, spines and APICs.</p>
+
+<p><img class="center" width="800" height="400" src="/images/apic_day_0_config/11.jpg" alt="APIC DNS Configuration" title="APIC DNS Configuration" /></p>
+
+<p><strong>12.</strong> Here we can check status about what we done already. Below you can notice that still we have to configure BGP route reflectors.  To configure BGP just press button <strong>Begin</strong> which will redirect you to configuration page.</p>
+
+<p><img class="center" width="800" height="430" src="/images/apic_day_0_config/12.jpg" alt="APIC setup overview" title="APIC setup overview" /></p>
+
+<p><strong>13.</strong> Press <strong>plus</strong> sign and add minimu two spines per Cisco ACI fabric site.</p>
+
+<p><img class="center" width="800" height="400" src="/images/apic_day_0_config/13.jpg" alt="APIC BGP RR config" title="APIC BGP RR config" /></p>
+
+<p><strong>14.</strong> From drop down choose node id of your spine. As I am using Cisco ACI Simulator I have only one spine with node ID 103. For test I am using default AS number.</p>
+
+<p><img class="center" width="600" height="250" src="/images/apic_day_0_config/14.jpg" alt="APIC BGP RR config" title="APIC BGP RR config" /></p>
+
+<p><strong>15.</strong> Below you can see that spine with node ID 103 was successful registered like RR in Pod 1.</p>
+
+<p><img class="center" width="800" height="300" src="/images/apic_day_0_config/15.jpg" alt="APIC BGP RR config" title="APIC BGP RR config" /></p>
+
+<p><strong>16.</strong> Short overview all looks good as Proxy won’t be used.</p>
+
+<p><img class="center" width="800" height="400" src="/images/apic_day_0_config/16.jpg" alt="APIC setup overview" title="APIC setup overview" /></p>
+
+<p><strong>17.</strong> Summary page, last step for configuration setup.
+<img class="center" width="800" height="430" src="/images/apic_day_0_config/17.jpg" alt="APIC setup summary" title="APIC setup summary" /></p>
+
+<p><strong>18.</strong> I would like to recommend you to check <strong>Dashboard</strong> sections like below on print screen</p>
+<ul>
+  <li>Switches should be <strong>Healthy</strong>.</li>
+  <li>Controllers should be <strong>In service</strong> and <strong>FullyFit</strong>.</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Note
+This is only zero day configuration for Cisco APIC. For MultiPod, Multisite, 
+Remote Leaf and other Cisco ACI Fabric designs should be configured other parameters
+and network objects.
+</code></pre></div></div>
+<p><img class="center" width="800" height="400" src="/images/apic_day_0_config/24.jpg" alt="" title="" /><br />
+<br />
+<br />
+<strong>Bonus steps</strong> for those how like to have clean ACI fabric without lot of system notifications.<br />
+Next few steps will describe how we can disable  messages from Cisco Smart Software Manage, this is mostly applicable for lab deployments and ACI Simulator as after 90 days should be reconfigured.</p>
+
+<p><strong>19.</strong> From APIC notification center please choose Cisco Smart Software Manager (CSSM).</p>
+
+<p><img class="center" width="800" height="400" src="/images/apic_day_0_config/18.jpg" alt="APIC notifications" title="APIC notification" /></p>
+
+<p><strong>20.</strong> Press on fault notification F3057.</p>
+
+<p><img class="center" width="800" height="400" src="/images/apic_day_0_config/19.jpg" alt="APIC notification" title="APIC notification" /></p>
+
+<p><strong>21.</strong> As below on print screen click on <strong>Configure Network Settings</strong>.</p>
+
+<p><img class="center" width="800" height="350" src="/images/apic_day_0_config/20.jpg" alt="APIC notification" title="APIC notification" /></p>
+
+<p><strong>22.</strong> From drop down menu choose <strong>Offline</strong> click on OK and you are ready.</p>
+
+<p><img class="center" width="500" height="400" src="/images/apic_day_0_config/21.jpg" alt="APIC notification" title="APIC notification" /></p>
+
+<p>I have walked through most important parameters for Cisco ACI Fabric. Now you can start to play with Cisco ACI Fabric network objects or you can proceed with fine tunning for the production environment. 😎</p>
+
+
+  </div><a class="u-url" href="/aci/aci-apic-initial-setup/" hidden></a>
+  <div class="post-categories">
+    
+    <h5>categories: 
+    <a href="/categories/#ACI">ACI</a>
+    
+    
+  </h5>
+  </div>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>RSS Feed</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</p>
+      </div>
+<!-- below were social media buttons -->
+
+  </div>
+
+</footer>
+</body>
+
+</html>

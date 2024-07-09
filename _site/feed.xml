@@ -1,0 +1,1284 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.2.0">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2024-07-09T18:19:07+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</subtitle><entry><title type="html">Mastering Cisco ACI Physical Design</title><link href="http://0.0.0.0:4000/aci/physical-design/" rel="alternate" type="text/html" title="Mastering Cisco ACI Physical Design" /><published>2024-07-07T00:00:00+00:00</published><updated>2024-07-07T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/physical-design</id><content type="html" xml:base="http://0.0.0.0:4000/aci/physical-design/">&lt;p align=&quot;center&quot;&gt;
+&lt;img src=&quot;/images/phy_design/2.png&quot; alt=&quot;Switch SFP Cables&quot; title=&quot;ACI Phy Design&quot; /&gt; 
+&lt;/p&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+Let's dive into the world of Cisco ACI physical design. After all, we all know that without hardware, there is no cloud or networking.
+&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+Dive into the world of Clos Topology, a concept born from a 1952 paper by Charles Clos, a researcher at Bell Laboratories. His revolutionary ideas on multistage telephone switching systems have transcended time, now serving as the foundation for building highly scalable data centers with cost-effective switches.
+The Cisco ACI fabric is based on either a two-tier (spine and leaf switch) or three-tier (spine switch, tier-1 leaf switch, and tier-2 leaf switch) architecture.
+In a Cisco Application Centric Infrastructure (ACI), each of the leaf, Fabric Extenders and spine switches has different functions.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Leaf Switches&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Leaf switches are the ingress/egress points for traffic into and out of an ACI fabric.&lt;/li&gt;
+  &lt;li&gt;They connect directly to servers and other devices, facilitating rapid data transfer.&lt;/li&gt;
+  &lt;li&gt;Each leaf switch is linked to every spine switch, creating a mesh of high-bandwidth connections.&lt;/li&gt;
+  &lt;li&gt;This setup ensures that any data packet is only a couple of hops away from its destination, significantly reducing latency.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Fabric Extenders (FEX)&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Fabric Extenders (FEX) in Cisco’s Application Centric Infrastructure (ACI) have several key functions:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Port Extension - FEX extends the ports of a Nexus switch, acting as a remote line card⁶. This allows for the use of more cost-effective devices with a reduced set of features that are connected to the Leaf Switches.&lt;/li&gt;
+  &lt;li&gt;Agile Connectivity - FEX offers agile connectivity for rack and blade servers and for converged fabric deployments⁵. It delivers innovation to the data center, reduces total cost of ownership, and gains architectural flexibility.&lt;/li&gt;
+  &lt;li&gt;Configuration and Management - All management is done on the parent switch; there is no console/vty access on the FEX⁶. This simplifies the management of the network infrastructure.&lt;/li&gt;
+  &lt;li&gt;Cisco ACI leaf switch models with -G or -Tin the product name, such as Cisco Nexus N9K-C9348GC-FXP, N9K-C93108TC-FX, N9K-C93108TC-FX-24, N9K-C93108TC-EX, N9K-C93108TC-EX-24, N9K-C93216TC-FX2, and N9K-93108TC-FX3P.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Discover the steps to configure Fabric Extenders (FEX) in Cisco ACI in Cisco comprehensive guide available &lt;a href=&quot;https://www.cisco.com/c/en/us/support/docs/cloud-systems-management/application-policy-infrastructure-controller-apic/200529-Configure-a-Fabric-Extender-with-Applica.html&quot; target=&quot;_blank&quot;&gt;here&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Spine Switches&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Spine switches are Clos intermediary switches that have a number of key functions:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;They are responsible for high-capacity data transmission across the network.&lt;/li&gt;
+  &lt;li&gt;They ensure that data packets travel efficiently from one leaf switch to another.&lt;/li&gt;
+  &lt;li&gt;The spine layer is crucial for maintaining the performance of the network as it scales, providing a robust framework that can handle increasing data demands without bottlenecks.&lt;/li&gt;
+  &lt;li&gt;Spine switches interconnect all leaf switches in a full-mesh topology.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Together, they create an architecture that is highly standardized across deployments. This design allows for a highly scalable and efficient network infrastructure.&lt;/p&gt;
+
+&lt;h5 id=&quot;two-tier-or-multi-tier-design&quot;&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Two-Tier or Multi-Tier Design?&lt;/span&gt;&lt;/strong&gt;&lt;/h5&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+Below Figure 1 illustrates the necessary components and cabling for an two-tier ACI fabric. It’s important to note that no cables should be connected between ACI leaf switches, as this is characteristic of Clos network design. Similarly, cross-cabling ACI spines will lead to the disabling of the cross-connected ports. The topology depicts a full mesh of cabling between the spine and leaf layers. 
+However, it’s important to note that while the Spine-Leaf architecture can be implemented without ACI, with the switches working in NX-OS mode. I would like to highlight that ASICs are different for Leaf and Spine switches, so a switch like the Nexus N9K-93180YC-EX cannot run as Spine switches.  
+&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+&lt;img class=&quot;center&quot; style=&quot;float&quot; width=&quot;350&quot; height=&quot;350&quot; src=&quot;/images/phy_design/aci-PhysicalDesign.jpg&quot; alt=&quot;phy-design&quot; title=&quot;PHY&quot; /&gt;  
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Figure 1&lt;/strong&gt; Two-Tier Topology Spine-Leaf classic interconnect between leaf and spine switches&lt;/p&gt;
+
+&lt;p&gt;In summary, I would like to recommend to check switch compatibility on the links below:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/dam/en/us/products/switches/nexus-9000-series-switches/nexus-9300-10GbaseT-switches-comparison.html&quot; target=&quot;_blank&quot;&gt;Cisco Nexus 9300 1/10GBaseT Switches&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/en/us/products/switches/nexus-9000-series-switches/nexus-9300-10ge-fiber-switches-comparison.html&quot; target=&quot;_blank&quot;&gt;Cisco Nexus 9300 1/10/25/40/50/100GE Fiber Switches&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/dam/en/us/products/switches/nexus-9000-series-switches/nexus-9300-40GE-switches-comparison.html&quot; target=&quot;_blank&quot;&gt;Cisco Nexus 9300 40/100 GE Switches&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/en/us/products/switches/nexus-9000-series-switches/nexus-9300-400-ge-switches.html&quot; target=&quot;_blank&quot;&gt;Cisco Nexus 9300 400 GE Switches&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-731792.html&quot; target=&quot;_blank&quot;&gt; Cisco Nexus 9300 ACI Fixed Spine Switches Data Sheet&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;If you plan to use Cisco Nexus modular switches for Cisco ACI fabric technical details you can find on below links:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/en/us/products/collateral/switches/nexus-9000-series-switches/datasheet-c78-729404.html&quot; target=&quot;_blank&quot;&gt; Cisco Nexus 9500 Series Switches Data Sheet&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/en/us/products/switches/nexus-9000-series-switches/nexus-9500-chassis-comparison.html&quot; target=&quot;_blank&quot;&gt; Nexus 9500 Chassis Comparison&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/en/us/products/switches/nexus-9000-series-switches/nexus-9800-models-comparison.html&quot; target=&quot;_blank&quot;&gt; Nexus 9800 Compare Models&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.cisco.com/c/en/us/products/switches/nexus-9000-series-switches/nexus-9800-line-cards-comparison.html&quot; target=&quot;_blank&quot;&gt; Nexus 9800 Line Cards comparison&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+Starting from Cisco ACI 4.1, the fabric also supports a multi-tier (three-tiers) topology. This includes two tiers of leaf switches, allowing for vertical expansion of the Cisco ACI fabric. This is particularly useful for migrating a traditional three-tier architecture (core-aggregation-access), a common design model for many enterprise networks.
+The ACI Multi-Tier is a beneficial solution for data centers aiming to reduce inter-row cabling and have low-bandwidth needs for top-of-rack switches. In this setup, Tier 1 leaf switches are placed at the end of each row, while Tier 2 leaf switches are positioned at the top of each rack. This strategy is particularly effective in managing cables and meeting bandwidth requirements.
+&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+&lt;img class=&quot;center&quot; style=&quot;float&quot; width=&quot;450&quot; height=&quot;400&quot; src=&quot;/images/phy_design/aci-PhysicalDesign 2.jpg&quot; alt=&quot;phy-design&quot; title=&quot;PHY&quot; /&gt;  
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Figure 2&lt;/strong&gt; Multi -Tier Topology Spine- Tier 1 Leaf and Tier 2 Leaf&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+&lt;img class=&quot;center&quot; style=&quot;float&quot; width=&quot;400&quot; height=&quot;300&quot; src=&quot;/images/phy_design/aci-Sec PhysicalDesign 2.jpg&quot; alt=&quot;phy-design&quot; title=&quot;PHY&quot; /&gt;  
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Figure 3&lt;/strong&gt; Multi -Tier Topology Spine- Tier 1 Leaf and Tier 2 Leaf option between two data center buildings&lt;/p&gt;
+
+&lt;p&gt;The topology requirements may include various models of spine and leaf switches, please check below:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Spine:&lt;/strong&gt; EX/FX/C/GX/GX2 spines (For example, Cisco Nexus 9332C, 9316D-GX, 9348D-GX2A, 9408 and 9500 with EX/FX/GX linecards).&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Tier-1&lt;/strong&gt; Leaf: EX/FX/FX2/FX3/GX/GX2 except Cisco Nexus 93180LC-EX.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;&lt;strong&gt;Tier-2&lt;/strong&gt; All EX/FX/FX2/FX3/GX/GX2.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;In the scenario where server access is at 1G and there is not need for high bandwidth, it’s a viable choice to use the Cisco Nexus 93180FX3 or Nexus 9364C-GX as the tier-1 leaf and the Cisco Nexus 9348FXP as the tier-2 leaf.&lt;/p&gt;
+
+&lt;p&gt;Before you start to build and design a multi-tier topology in a Cisco ACI environment, please take into account the following:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;1.Fabric Port Configuration:&lt;/span&gt;&lt;/strong&gt; All inter-switch connections must be configured as fabric ports. This includes the connections between Tier-2 leaf switch fabric ports and Tier-1 leaf switch fabric ports.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;2.Tier-2 Leaf Switch Connectivity:&lt;/span&gt;&lt;/strong&gt; A Tier-2 leaf switch has the capability to connect to more than two Tier-1 leaf switches. This is in contrast to a traditional double-sided vPC design, which only supports two upstream switches. The maximum number of ECMP links supported by a Tier-2 leaf switch to a Tier-1 leaf switch is 18.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;3.Endpoint Group (EPG) and Layer 3 Outside (L3Out) Connections:&lt;/span&gt;&lt;/strong&gt; EPGs, L3Outs, Cisco APICs, or Fabric Extenders (FEX) can be connected to either Tier-1 or Tier-2 leaf switches.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;4.Tier-1 Leaf Switch Connections:&lt;/span&gt;&lt;/strong&gt; Tier-1 leaf switches can have both hosts and Tier-2 leaf switches connected to them.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;5.Switch Tier Transition:&lt;/span&gt;&lt;/strong&gt; Transitioning from a Tier-1 to a Tier-2 leaf switch (and vice versa) requires decommissioning and recommissioning the switch.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;6.Compatibility with Cisco ACI Multi-Pod and Multi-Site:&lt;/span&gt;&lt;/strong&gt; Multi-tier architectures are compatible with both Cisco ACI Multi-Pod and Cisco ACI Multi-Site.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;7.Tier-2 Leaf Switch Connectivity Limitations:&lt;/span&gt;&lt;/strong&gt; Tier-2 leaf switches cannot be connected to remote leaf switches (Tier-1 leaf switches).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;8.Scale Considerations:&lt;/span&gt;&lt;/strong&gt; The combined number of Tier-1 and Tier-2 leaf switches must not exceed the maximum number of leaf switches validated for a given release (400 per pod; 500 per Cisco ACI Multi-Pod as of Cisco ACI release 6.0(1)).&lt;/p&gt;
+
+&lt;p&gt;Reference for &lt;a href=&quot;https://www.cisco.com/c/en/us/products/switches/nexus-9000-series-switches/nexus-9800-line-cards-comparison.html&quot; target=&quot;_blank&quot;&gt; Cisco ACI Multi-tier Architecture&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;&lt;span style=&quot;color:#074080&quot;&gt;Fabric Port&lt;/span&gt;&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+In Cisco's Application Centric Infrastructure (ACI), a fabric port is a type of port that is used for uplink connectivity within the fabric. These ports are typically used to connect different switches within the ACI fabric.
+For example, in a multi-tier topology, all switch-to-switch links must be configured as fabric ports. This includes the connections between Tier-2 leaf switch fabric ports and Tier-1 leaf switch fabric ports.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Fiber optics modules&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;  
+Don't forget that based on specific switch model and uplinks design you will need to choose proper optical modules.
+All details about compatibility matrix for Cisco Optics and devices you can find on below links:
+&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://tmgmatrix.cisco.com/&quot;&gt;Cisco Optics-to-Device Compatibility Matrix&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://tmgmatrix.cisco.com/iop&quot;&gt;Cisco Optics-to-Optics Interoperability Matrix&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt; 
+If you struggling or you have some doubts about compatibility between switches and optical modules SFP SFP+ QSFPs I would like to recommend:
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;iframe width=&quot;420&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/5I19ePqzNhc?controls=0&quot;&gt;
+&lt;/iframe&gt;
+&lt;/p&gt;
+
+&lt;p&gt;
+&lt;iframe width=&quot;420&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/FFhNGxmniR4?controls=0&quot;&gt;
+&lt;/iframe&gt;  
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Taxonomy for Cisco Nexus 9000 Series Part Numbers&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+For a comprehensive understanding and decoding of all Nexus Part Numbers names, kindly refer to Figure 4.
+&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+&lt;img class=&quot;center&quot; style=&quot;float&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/phy_design/taxonomy_nk9.png&quot; alt=&quot;taxonomynk9&quot; title=&quot;PHY&quot; /&gt;  
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Figure 4&lt;/strong&gt; Cheet-sheet for decoding Cisco Nexus 9000 Series Part Numbers&lt;/p&gt;</content><author><name></name></author><category term="ACI" /><summary type="html">Let's dive into the world of Cisco ACI physical design. After all, we all know that without hardware, there is no cloud or networking.</summary></entry><entry><title type="html">Cisco ACI Fabric - APIC Day 1 configuration</title><link href="http://0.0.0.0:4000/aci/aci-apic-initial-setup/" rel="alternate" type="text/html" title="Cisco ACI Fabric - APIC Day 1 configuration" /><published>2022-12-01T00:00:00+00:00</published><updated>2022-12-01T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-apic-initial-setup</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-apic-initial-setup/">&lt;p align=&quot;center&quot;&gt;
+&lt;img src=&quot;/images/apic_day_0_config/apic.jpg&quot; alt=&quot;Cisco ACI APIC&quot; title=&quot;Cisco APIC interconnects&quot; /&gt;  
+&lt;/p&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator. 
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;0.&lt;/strong&gt; In your favorite browser address bar add &lt;strong&gt;&lt;em&gt;https://oob.ip.address&lt;/em&gt;&lt;/strong&gt;. Use IP address what you set during APIC initial configuration.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/acisim_init_conf/login_screen2.jpg&quot; alt=&quot;APIC Login&quot; title=&quot;APIC Login&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Cisco ACI Fabric APIC ver 5.2 supported browsers:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Chrome version 59 (at minimum)&lt;/li&gt;
+  &lt;li&gt;Firefox version 54 (at minimum)&lt;/li&gt;
+  &lt;li&gt;Internet Explorer version 11 (at minimum)&lt;/li&gt;
+  &lt;li&gt;Safari version 10 (at minimum)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;1.&lt;/strong&gt; After what you will login it will appear Cisco APIC welcome screen, looks nice. Just press &lt;strong&gt;Let’s go&lt;/strong&gt; as this white button suggesting.
+&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/1.jpg&quot; alt=&quot;APIC Welcome Screen&quot; title=&quot;APIC Welcome Screen&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;2.&lt;/strong&gt; One more screen from APIC this one is important as it will provided you information about:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;New features for installed APIC version of APIC.&lt;/li&gt;
+  &lt;li&gt;Updated scalability numbers.&lt;/li&gt;
+  &lt;li&gt;Very good resources and knowledge base for ACI fabric and APIC clusters.&lt;br /&gt;
+After what you reviewed all interesting things pres &lt;strong&gt;Start ACI Fabric Setup&lt;/strong&gt; button.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;470&quot; src=&quot;/images/apic_day_0_config/2.jpg&quot; alt=&quot;APIC Release notes&quot; title=&quot;APIC Release notes&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;3.&lt;/strong&gt; Below we can see the most important sections which should be configured before any service configuration on ACI.&lt;/p&gt;
+
+&lt;p&gt;I would like to suggest following order:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Add leaf and spine to Cisco ACI Fabric.&lt;/li&gt;
+  &lt;li&gt;NTP server configuration.&lt;/li&gt;
+  &lt;li&gt;DNS server configuration.&lt;/li&gt;
+  &lt;li&gt;BGP RR configuration for Spine.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;450&quot; src=&quot;/images/apic_day_0_config/3.jpg&quot; alt=&quot;APIC Basic service setup&quot; title=&quot;APIC Basic service setup&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;4.&lt;/strong&gt; Add first leaf to Cisco ACI Fabric, for serial number we will use TEP-1-102, 101 and 103 as this is Cisco ACI simulator on real Cisco ACI Fabric you will have serial numbers in following format F1234A768. For node ID choose unique number, once when you tied node ID to serial number you will not be able to change on the fly. If you would like to change you will need to do decommissioning and commissioning with new node ID. Switch name you can change anytime if you will not like assigned during initial switch provisioning.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;600&quot; height=&quot;s 200&quot; src=&quot;/images/apic_day_0_config/4.jpg&quot; alt=&quot;APIC spine leaf membership&quot; title=&quot;APIC spine leaf membership&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;5.&lt;/strong&gt; Here you should pay attention  and check is it switch in &lt;strong&gt;Registering&lt;/strong&gt; phase, if you notice some other messages please stop and perform tshoot.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/5.jpg&quot; alt=&quot;APIC add leaf to membership&quot; title=&quot;APIC add leaf to membership&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;6.&lt;/strong&gt; Once when is done we should see that switch is successfully &lt;strong&gt;Register&lt;/strong&gt; as we can see below for leaf with node ID 101.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;350&quot; src=&quot;/images/apic_day_0_config/6.jpg&quot; alt=&quot;APIC add leaf to membership&quot; title=&quot;APIC add leaf to membership&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;7.&lt;/strong&gt; Same you should repeat for all Spine switches too, below you can see &lt;strong&gt;Registering&lt;/strong&gt; of spine with node ID 103.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;350&quot; src=&quot;/images/apic_day_0_config/7.jpg&quot; alt=&quot;APIC add spine to membership&quot; title=&quot;APIC add spine to membership&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;8.&lt;/strong&gt; And Spine with node ID 103 has been successfully &lt;strong&gt;Register&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;350&quot; src=&quot;/images/apic_day_0_config/8.jpg&quot; alt=&quot;APIC add spine to membership&quot; title=&quot;APIC add spine to membership&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;9.&lt;/strong&gt; Based on workflow from point #3 I will proceed with NTP configuration. You can choose time format from &lt;strong&gt;local&lt;/strong&gt; or &lt;strong&gt;utc&lt;/strong&gt;. Use &lt;strong&gt;plus&lt;/strong&gt; sign for adding one or more NTP servers, one of them you can set like preferable.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/9.jpg&quot; alt=&quot;APIC NTP Configuration&quot; title=&quot;APIC NTP Configuration&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;10.&lt;/strong&gt; In the lab for NTP server I use public Google NTP server just for test.
+&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;450&quot; src=&quot;/images/apic_day_0_config/10.jpg&quot; alt=&quot;APIC NTP Configuration&quot; title=&quot;APIC NTP Configuration&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;11.&lt;/strong&gt; Here I will add Google DNS server just for test. Usually you will use internal DNS. Don’t forget to add DNS records for leaf, spines and APICs.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/11.jpg&quot; alt=&quot;APIC DNS Configuration&quot; title=&quot;APIC DNS Configuration&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;12.&lt;/strong&gt; Here we can check status about what we done already. Below you can notice that still we have to configure BGP route reflectors.  To configure BGP just press button &lt;strong&gt;Begin&lt;/strong&gt; which will redirect you to configuration page.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;430&quot; src=&quot;/images/apic_day_0_config/12.jpg&quot; alt=&quot;APIC setup overview&quot; title=&quot;APIC setup overview&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;13.&lt;/strong&gt; Press &lt;strong&gt;plus&lt;/strong&gt; sign and add minimu two spines per Cisco ACI fabric site.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/13.jpg&quot; alt=&quot;APIC BGP RR config&quot; title=&quot;APIC BGP RR config&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;14.&lt;/strong&gt; From drop down choose node id of your spine. As I am using Cisco ACI Simulator I have only one spine with node ID 103. For test I am using default AS number.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;600&quot; height=&quot;250&quot; src=&quot;/images/apic_day_0_config/14.jpg&quot; alt=&quot;APIC BGP RR config&quot; title=&quot;APIC BGP RR config&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;15.&lt;/strong&gt; Below you can see that spine with node ID 103 was successful registered like RR in Pod 1.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;300&quot; src=&quot;/images/apic_day_0_config/15.jpg&quot; alt=&quot;APIC BGP RR config&quot; title=&quot;APIC BGP RR config&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;16.&lt;/strong&gt; Short overview all looks good as Proxy won’t be used.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/16.jpg&quot; alt=&quot;APIC setup overview&quot; title=&quot;APIC setup overview&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;17.&lt;/strong&gt; Summary page, last step for configuration setup.
+&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;430&quot; src=&quot;/images/apic_day_0_config/17.jpg&quot; alt=&quot;APIC setup summary&quot; title=&quot;APIC setup summary&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;18.&lt;/strong&gt; I would like to recommend you to check &lt;strong&gt;Dashboard&lt;/strong&gt; sections like below on print screen&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Switches should be &lt;strong&gt;Healthy&lt;/strong&gt;.&lt;/li&gt;
+  &lt;li&gt;Controllers should be &lt;strong&gt;In service&lt;/strong&gt; and &lt;strong&gt;FullyFit&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Note
+This is only zero day configuration for Cisco APIC. For MultiPod, Multisite, 
+Remote Leaf and other Cisco ACI Fabric designs should be configured other parameters
+and network objects.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/24.jpg&quot; alt=&quot;&quot; title=&quot;&quot; /&gt;&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;strong&gt;Bonus steps&lt;/strong&gt; for those how like to have clean ACI fabric without lot of system notifications.&lt;br /&gt;
+Next few steps will describe how we can disable  messages from Cisco Smart Software Manage, this is mostly applicable for lab deployments and ACI Simulator as after 90 days should be reconfigured.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;19.&lt;/strong&gt; From APIC notification center please choose Cisco Smart Software Manager (CSSM).&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/18.jpg&quot; alt=&quot;APIC notifications&quot; title=&quot;APIC notification&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;20.&lt;/strong&gt; Press on fault notification F3057.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/19.jpg&quot; alt=&quot;APIC notification&quot; title=&quot;APIC notification&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;21.&lt;/strong&gt; As below on print screen click on &lt;strong&gt;Configure Network Settings&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;350&quot; src=&quot;/images/apic_day_0_config/20.jpg&quot; alt=&quot;APIC notification&quot; title=&quot;APIC notification&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;22.&lt;/strong&gt; From drop down menu choose &lt;strong&gt;Offline&lt;/strong&gt; click on OK and you are ready.&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; width=&quot;500&quot; height=&quot;400&quot; src=&quot;/images/apic_day_0_config/21.jpg&quot; alt=&quot;APIC notification&quot; title=&quot;APIC notification&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;I have walked through most important parameters for Cisco ACI Fabric. Now you can start to play with Cisco ACI Fabric network objects or you can proceed with fine tunning for the production environment. 😎&lt;/p&gt;</content><author><name></name></author><category term="ACI" /><summary type="html">This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator.</summary></entry><entry><title type="html">Cisco ACI Simulator APIC Initial setup</title><link href="http://0.0.0.0:4000/aci/acisim-init-conf/" rel="alternate" type="text/html" title="Cisco ACI Simulator APIC Initial setup" /><published>2022-11-10T00:00:00+00:00</published><updated>2022-11-10T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/acisim-init-conf</id><content type="html" xml:base="http://0.0.0.0:4000/aci/acisim-init-conf/">&lt;p align=&quot;center&quot;&gt;
+&lt;img src=&quot;/images/acisim_init_conf/subject.jpg&quot; alt=&quot;Cisco ACI Simulator&quot; title=&quot;Cisco ACI Initial Configuration&quot; /&gt;  
+&lt;/p&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+If you already read my last post &lt;a href=&quot;/aci/acisim-on-kvm/index.html&quot; target=&quot;_blank&quot;&gt;How to run Cisco ACI Simulator on KVM host&lt;/a&gt; you know that now we need to do first step and go through Cisco APIC initial configuration setup. If you need help this post is right place for you. So let' go and see what we need to do.
+&lt;/p&gt;
+
+&lt;p&gt;&lt;img class=&quot;center&quot; style=&quot;float&quot; width=&quot;400&quot; height=&quot;400&quot; src=&quot;/images/acisim_init_conf/net_diagram.jpg&quot; alt=&quot;ACISIM Diagram&quot; title=&quot;ACISIM internal connectivity&quot; /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Note:
+Cisco ACI simulator doesn't support data plane and you won't be able to connect any  
+other VM which can represent End Point. Simple you will not be able to issue ping  
+command and send ICMP request and see any ICMP reply or use any other protocol for testing purpose.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;1.VM is booting
+&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/acisim_init_conf/1.jpg&quot; alt=&quot;acisim booting&quot; title=&quot;acisim booting&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;2.If you have recommended HW resource use large topology otherwise your choice is “N”.
+&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;280&quot; src=&quot;/images/acisim_init_conf/2.jpg&quot; alt=&quot;Acisim topology size&quot; title=&quot;Acisim topology size&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;3.After few seconds it will appear this nice logo.
+&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;280&quot; src=&quot;/images/acisim_init_conf/3.jpg&quot; alt=&quot;APIC Welcome screen&quot; title=&quot;APIC Welcome screen&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;4.For ACISIM I would like to recommend to accept all default parameters. All parameters you can change but in that case there is no guaranteed that Cisco ACI simulator will work properly.
+&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;s 350&quot; src=&quot;/images/acisim_init_conf/7.jpg&quot; alt=&quot;APIC ACISIM setup&quot; title=&quot;APIC ACISIM setup&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;5.One of parameters what actually you should change is default OOB subnet and gateway. Choose IP address/Subnet mask from your OOB lab network and set in this step. Later you will use this IP address for access APIC UI via HTTPS.
+&lt;img class=&quot;center&quot; width=&quot;600&quot; height=&quot;100&quot; src=&quot;/images/acisim_init_conf/8.jpg&quot; alt=&quot;APIC ACISIM OOB&quot; title=&quot;APIC ACISIM OOB&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;6.Please set admin password and don’t forget, later you will need for login to APIC UI 😉
+&lt;img class=&quot;center&quot; width=&quot;600&quot; height=&quot;100&quot; src=&quot;/images/acisim_init_conf/9.jpg&quot; alt=&quot;APIC ACISIM admin pass&quot; title=&quot;APIC ACISIM admin pass&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;7.Here you have chance to change any configuration parameter what you set during initial configuration.
+If you are self confident and you put password on the sticky note on your desk you just press “ENTER”
+&lt;img class=&quot;center&quot; width=&quot;600&quot; height=&quot;120&quot; src=&quot;/images/acisim_init_conf/10.jpg&quot; alt=&quot;APIC ACISIM modification&quot; title=&quot;APIC ACISIM modification&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;8.In your favorite browser type https://oob.ip.address what you set during initial configuration.
+When APIC login page appear for User ID use &lt;strong&gt;admin&lt;/strong&gt; and for password use note from your sticky note from your the desk.
+&lt;img class=&quot;center&quot; width=&quot;800&quot; height=&quot;400&quot; src=&quot;/images/acisim_init_conf/login_screen1.jpg&quot; alt=&quot;Login&quot; title=&quot;Login&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Final Part 2 coming soon! Are you enjoyed reading? If yes please subscribe &lt;strong&gt;&lt;a href=&quot;/subscribe/index.html&quot; target=&quot;_blank&quot;&gt;Here&lt;/a&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;head&gt;
+&lt;style&gt;
+a:link {
+  text-decoration: underline;
+}
+
+a:visited {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
+a:active {
+  text-decoration: none;
+}
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+&lt;/style&gt;
+&lt;/head&gt;</content><author><name></name></author><category term="ACI" /><summary type="html">If you already read my last post How to run Cisco ACI Simulator on KVM host you know that now we need to do first step and go through Cisco APIC initial configuration setup. If you need help this post is right place for you. So let' go and see what we need to do.</summary></entry><entry><title type="html">How to run Cisco ACI Simulator on KVM host</title><link href="http://0.0.0.0:4000/aci/acisim-on-kvm/" rel="alternate" type="text/html" title="How to run Cisco ACI Simulator on KVM host" /><published>2022-06-13T00:00:00+00:00</published><updated>2022-06-13T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/acisim-on-kvm</id><content type="html" xml:base="http://0.0.0.0:4000/aci/acisim-on-kvm/">&lt;p align=&quot;center&quot;&gt;
+&lt;img src=&quot;/images/acisim_on_kvm/subject.jpg&quot; alt=&quot;Cisco ACI Simulator&quot; title=&quot;Cisco ACI Simulator Spine leaf and APIC&quot; /&gt;  
+&lt;/p&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+As officially ACI Simulator is not supported on KVM host and I didn't have ESXi in my lab I have decided to do experiment. 
+Moreover I have played with amount of hardware resource necessary for this experiment. If you would like to know result of this experiment, you can proceed and read rest of the post.
+&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+At the beginning lets say couple of words about Cisco ACI Simulator or ACISIM. So this is Cisco virtual machine, inside which we can find simulation of two leaf switches, one spine and one Cisco Application Policy Infrastructure Controller (APIC). Actually this is simulation of Data Center leaf spine topology with SDN controller. 
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Official Cisco ACI Simulator Virtual Machine HW requirements:&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; src=&quot;/images/acisim_on_kvm/hw_resurces.jpg&quot; alt=&quot;HW requirements&quot; title=&quot;Official HW requirements&quot; /&gt;&lt;/p&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+To make things more interesting I have reduced HW resources just from the beginning of experiment.&amp;#128521;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;And I created setup as below:&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;100&quot; src=&quot;/images/acisim_on_kvm/hw_resurces2.jpg&quot; alt=&quot;HW requirements&quot; title=&quot;HW requirements tested in the lab&quot; /&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+So, are you ready to spin ACI Simulator with less than minimum HW resource for release 5.2(4d)? If yes, let's go and see what will happen in the end.&amp;#128526;
+&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 1. Download ACI Simulator&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Go to &lt;a href=&quot;https://software.cisco.com/download/home/286283149/type/286283168/release/5.2(4d)&quot; target=&quot;_blank&quot;&gt;Cisco Download Page&lt;/a&gt;, please don’t forget that you should have valid Cisco account, otherwise no luck.&lt;/p&gt;
+
+&lt;p&gt;Download all &lt;strong&gt;eight&lt;/strong&gt; pieces:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;acisim-5.2-4d_part1.ova&lt;/li&gt;
+&lt;li&gt;acisim-5.2-4d_part2.ova&lt;/li&gt;
+&lt;li&gt;acisim-5.2-4d_part3.ova&lt;/li&gt;
+&lt;li&gt;acisim-5.2-4d_part4.ova&lt;/li&gt;
+&lt;li&gt;acisim-5.2-4d_part5.ova&lt;/li&gt;
+&lt;li&gt;acisim-5.2-4d_part6.ova&lt;/li&gt;
+&lt;li&gt;acisim-5.2-4d_part7.ova&lt;/li&gt;
+&lt;li&gt;acisim-5.2-4d_part8.ova&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 2. Concatenate downloaded parts and create QCOW2 image from VMDK&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Use Linux &lt;strong&gt;cat&lt;/strong&gt; command to concatenate all 8 parts.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;cat acisim-5.2-4d_part1.ova \ 
+    acisim-5.2-4d_part2.ova \
+    acisim-5.2-4d_part3.ova \
+    acisim-5.2-4d_part4.ova \
+    acisim-5.2-4d_part5.ova \
+    acisim-5.2-4d_part6.ova \
+    acisim-5.2-4d_part7.ova \
+    acisim-5.2-4d_part8.ova &amp;gt; acisim.ova
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Optional check MD5 of acisim.ova VM once when concatenations is done.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;md5sum -c aci.md5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Now we have virtual machine with vmdk vHD but we need qocow2 image. So what’s next, we need to untar acisim.ova and we have to convert acisim-5.2-4d-disk1.vmdk to acisim-5.2-4d-disk1.qcow2.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;tar -xvf aci.ova
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;voila finally we have acisim-5.2-4d-disk1.vmdk let’s run one more command and we will have acisim-5.2-4d-disk1.qcow2&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;qemu-img convert -O qcow2 acisim-5.2-4d-disk1.vmdk path/to/images_folder/acisim-5.2-4d-disk1.qcow2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 3. Run ACISIM VM on Ubuntu with KVM hypervisor&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+Run virt-manger application from desktop UI or If you are using headless server first ssh to server (don't forget to enable x11 forwarding).
+&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Once when you run &lt;b&gt;virt-manager command&lt;/b&gt; it will appear creation VM setup dialog&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; src=&quot;/images/acisim_on_kvm/Untitled0.jpg&quot; alt=&quot;Virt-Manager1&quot; title=&quot;Open VM setup dialog&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Please choose like below on print screens.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;275&quot; src=&quot;/images/acisim_on_kvm/Untitled.jpg&quot; alt=&quot;Virt-Manager2&quot; title=&quot;Create new VM&quot; /&gt;  &lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;275&quot; src=&quot;/images/acisim_on_kvm/Untitled 2.jpg&quot; alt=&quot;Virt-Manager3&quot; title=&quot;Choose qcow2 image&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Here you will need to point to folder where you saved acisim.qcow2 image.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;275&quot; src=&quot;/images/acisim_on_kvm/Untitled 3.jpg&quot; alt=&quot;Virt-Manager4&quot; title=&quot;Choose qcow2 image&quot; /&gt; &lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;275&quot; src=&quot;/images/acisim_on_kvm/Untitled 4.jpg&quot; alt=&quot;Virt-Manager5&quot; title=&quot;Customize VM parameters&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Let use only 8 vCPUs and 32G of RAM, this is far from recommended by Cisco. &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;275&quot; src=&quot;/images/acisim_on_kvm/Untitled 5.jpg&quot; alt=&quot;Virt-Manager6&quot; title=&quot;Increase vCPU&quot; /&gt; &lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;275&quot; src=&quot;/images/acisim_on_kvm/Untitled 6.jpg&quot; alt=&quot;Virt-Manager7&quot; title=&quot;Increase Memory&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Mandatory, please select network adapter type &lt;b&gt;e1000&lt;/b&gt; otherwise later you will not be able to connect to your ACISIM via HTTPS or SSH.&lt;/li&gt;
+&lt;li&gt;To start VM creation press &quot;Begin installation&quot;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;275&quot; src=&quot;/images/acisim_on_kvm/Untitled 7.jpg&quot; alt=&quot;Virt-Manager8&quot; title=&quot;Set network&quot; /&gt; &lt;img style=&quot;float&quot; width=&quot;350&quot; height=&quot;275&quot; src=&quot;/images/acisim_on_kvm/Untitled 9.jpg&quot; alt=&quot;Virt-Manager9&quot; title=&quot;Begin installation&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Between all VMs choose acisim and run.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; src=&quot;/images/acisim_on_kvm/Untitled 10.jpg&quot; alt=&quot;Virt-Manager10&quot; title=&quot;Select VM and Run&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Press OPEN button to access acisim VM console.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; src=&quot;/images/acisim_on_kvm/Untitled 11.jpg&quot; alt=&quot;Virt-Manager11&quot; title=&quot;Open Console&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;After 2-3 min (depend about power of your host) it will appear APIC initial screen.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; src=&quot;/images/acisim_on_kvm/Untitled 12.jpg&quot; alt=&quot;Virt-Manager12&quot; title=&quot;APIC initial config&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Below we can see that we are running Cisco ACI simulator on KVM host and successful start of initial configuration on Cisco APIC.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; src=&quot;/images/acisim_on_kvm/Untitled 13.jpg&quot; alt=&quot;Virt-Manager13&quot; title=&quot;APIC initial config&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Short Outcome:&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If we have insufficient HW resource already in the lab we can reduce number of vCPUs and amount of memory
+for ACISIM VM.&lt;/li&gt; 
+&lt;li&gt;In this Blog post I have used 8x vCPS and 32 GB of RAM below this it will not work.&lt;/li&gt;
+&lt;li&gt;We can use Cisco ACI simulator on KVM host, even if it is not officially supported by vendor.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Enjoy your ACI simulator and happy testing!!!&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;</content><author><name></name></author><category term="ACI" /><summary type="html">As officially ACI Simulator is not supported on KVM host and I didn't have ESXi in my lab I have decided to do experiment. Moreover I have played with amount of hardware resource necessary for this experiment. If you would like to know result of this experiment, you can proceed and read rest of the post.</summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 4</title><link href="http://0.0.0.0:4000/vxlan/static-vxlan-part4/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 4" /><published>2021-12-24T00:00:00+00:00</published><updated>2021-12-24T00:00:00+00:00</updated><id>http://0.0.0.0:4000/vxlan/static-vxlan-part4</id><content type="html" xml:base="http://0.0.0.0:4000/vxlan/static-vxlan-part4/">&lt;style&gt;
+p1 {
+  font-size: 11px;
+}
+p2 {
+  font-size: 12px;
+}
+&lt;/style&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+&lt;img src=&quot;/images/static_vxlan/vxlan_tunnel4.jpg&quot; alt=&quot;Overlay VxLAN Cumulus Linux&quot; title=&quot;VxLAN between Cumulus VX and Juniper vMX&quot; /&gt;  
+&lt;/p&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs.
+&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+Data center gateways will be simulated with Cumulus Linux VX vSwitch and Juniper vMX virtual router. This time I will skip installation and configuration of the following:  
+&lt;ul&gt;
+&lt;li&gt;namespaces for simulation of VM1 and VM3&lt;/li&gt;
+&lt;li&gt;Download VPCS and configuration&lt;/li&gt;
+&lt;li&gt;Configuration of VxLAN tunnels from srv and srv1 to Cumulus VX switch as it will be the same like in Part 3.&lt;/li&gt;
+&lt;/ul&gt;
+All details related to the above configuration and deployment you can find in blogposts &lt;a href=&quot;/vxlan/static-vxlan-part2/index.html&quot;&gt;Part 2&lt;/a&gt; and &lt;a href=&quot;/vxlan/static-vxlan-part3/index.html&quot;&gt;Part 3&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt; 
+  &lt;img src=&quot;/images/static_vxlan/net_diag4.jpg&quot; alt=&quot;VxLAN, VTEP, Overlay Network&quot; title=&quot;VxLAN Network diagram&quot; /&gt; 
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Virtual router, switch and linux host machines:&lt;/strong&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;VM name&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;OS Version&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;Extra installed SW&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;srv&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Ubuntu 20.04&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;bridge-utils&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;srv1&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Ubuntu 20.04&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;bridge-utils&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;virtual switch&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Cumulus Linux 4.4.1 VX (Nvidia)&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt; &lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;virtual router&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Juniper vMX  JUNOS 18.4R1.8&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt; &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 1. Configure interfaces on dcgw1 and dcgw2&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;On dcgw1 (Cumulus Linux) configure interface for OSPF peering with dc-interconnect router&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp3 ip address 172.21.100.1/30
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;add loopback which will be used for VTEP termination point.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add loopback lo ip address 192.168.1.4/32
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Above we should repeat for dcgw2 (Juniper vMX)&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set interfaces xe-0/0/4 unit 0 family inet address 172.21.101.1/30  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;add loopback which will be used for VTEP termination point.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set interfaces lo0 unit 5 family inet address 192.168.1.5/32  
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 2. Configure dc-interconnect L3 switch interfaces(Cumulus Linux VX)&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Add loopback&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add loopback lo ip address 2.2.2.2/32
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add interface for peering with dcgw1&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp3 ip address 172.21.100.2/30
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add interface for peering with dcgw2&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp1 ip address 172.21.101.2/30
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 3. Configuration of  OSPF peering&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply on dcgw1.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Set router ID.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add ospf router-id 192.168.1.4
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add specific networks to OSPF.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add ospf network 192.168.1.4/32 area 1
+net add ospf network 172.21.100.0/30 area 1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Change network type on link between dcgw1 and dc-interconnect.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp3 ospf network point-to-point
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;On unnecessary interfaces stop sending OSPF messages.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add ospf passive-interface swp1
+net add ospf passive-interface swp2
+net add ospf passive-interface swp4
+net add ospf passive-interface swp5
+net add ospf passive-interface swp6
+net add ospf passive-interface swp7
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply on dc-interconnect.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Set router ID.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add ospf router-id 2.2.2.2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add specific networks to OSPF.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add ospf network 2.2.2.2/32 area 1
+net add ospf network 172.21.100.0/30 area 1
+net add ospf network 172.21.101.0/30 area 1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Change network type on links between dc-interconnect dcgw1 and dcgw2.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp3 ospf network point-to-point
+net add interface swp1 ospf network point-to-point
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;On unnecessary interfaces stop sending OSPF messages.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add ospf passive-interface swp2
+net add ospf passive-interface swp4
+net add ospf passive-interface swp5
+net add ospf passive-interface swp6
+net add ospf passive-interface swp67
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply on dcgw2.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Set router ID.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set routing-options router-id 192.168.1.5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Change network type on links between dc-interconnect and dcgw2 and enable OSPF on xe-0/0/4 (172.21.101.0/30).&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set protocols ospf area 0.0.0.1 interface xe-0/0/4.0 interface-type p2p
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Enable OSPF on loopback&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set protocols ospf area 0.0.0.1 interface lo0.5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Check OSPF routes on dc-interconnect L3 switch.&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; src=&quot;/images/static_vxlan/ospf_check_dcintcon.jpg&quot; alt=&quot;Show OSPF routes&quot; title=&quot;OSPF Routing&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 4. Add static VxLAN tunnels between dcgw1 and dcgw2&lt;/span&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;u&gt;Apply on dcgw1.&lt;/u&gt;&lt;br /&gt;
+Create VxLAN tunnel interface.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-103 vxlan id 103
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add vni-103 to specific bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add bridge br-22 ports vni-103
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure Loopback primary address for VTEP source.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-103 vxlan local-tunnelip 192.168.1.4
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure remote VTEP on dcgw2.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-103 vxlan remoteip 192.168.1.5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply on dcgw2.&lt;/u&gt;&lt;br /&gt;
+Create bridge domain.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set bridge-domains br-vl22 vlan-id 22
+set bridge-domains br-vl22 vxlan vni 103
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Enable “ingress-node-replication” this will handle incoming broadcast, unknown unicast, or multicast (BUM) traffic.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set bridge-domains br-vl22 vxlan ingress-node-replication
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure Loopback lo0.5 for VTEP source.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set switch-options vtep-source-interface lo0.5
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure remote VTEP on dcgw1.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;set switch-options remote-vtep-list 192.168.1.4
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 5. Connectivity check &lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Run PING command from VM1, VM3 and DB server (VPCS)
+&lt;img style=&quot;center&quot; src=&quot;/images/static_vxlan/vm1_vm3_ping_db_part4.jpg&quot; alt=&quot;Ping from namespace&quot; title=&quot;Connectivity check with PING command&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Issue ping from VM3 (namespace)&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo ip netns exec vm3 ping 192.168.22.4 -- &amp;gt; remote IP on DB server.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;650&quot; height=&quot;150&quot; src=&quot;/images/static_vxlan/vm3_ping_db_part4.jpg&quot; alt=&quot; PING ICMP remote DB Server&quot; title=&quot;VM3 Ping remote DB server&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;750&quot; height=&quot;250&quot; src=&quot;/images/static_vxlan/vm3_ping_db_part4_v2.jpg&quot; alt=&quot;L2 frame, VxLAN, wireshark, packet capture, pcap&quot; title=&quot;Wireshark VxLAN packet capture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Issue ping from VM1 (namespace)&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo ip netns exec vm1 ping 192.168.22.4 -- &amp;gt; remote IP on DB server.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;650&quot; height=&quot;150&quot; src=&quot;/images/static_vxlan/vm1_ping_db_part4.jpg&quot; alt=&quot; PING ICMP remote DB Server&quot; title=&quot;VM3 Ping remote DB server&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;750&quot; height=&quot;250&quot; src=&quot;/images/static_vxlan/vm1_ping_db_part4_v2.jpg&quot; alt=&quot;L2 frame, VxLAN, wireshark, packet capture, pcap&quot; title=&quot;Wireshark VxLAN packet capture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;From the capture you can see that two VxLAN tunnels were used for interconnection with Cumulus VX virtual switch. Both tunnels landed on to one bridge on Cumulus VX virtual switch. That way we achieve communication between two VMs and DB server (VPCS).&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Issue ping from DB server (VPCS) to check connectivity with VM1 and VM3&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; width=&quot;750&quot; height=&quot;250&quot; src=&quot;/images/static_vxlan/db_srv_ping_vm3_pcap_part3.jpg&quot; alt=&quot;Ping from VPCS&quot; title=&quot;Connectivity check with PING command&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Based on the ping and packet captures we can conclude that we have L2 connectivity between two data centers. It means that we build overlay network on top of classical L3 network connectivity.&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static_vxlan_part1/index.html&quot; target=&quot;_blank&quot;&gt;Part 1 Static VxLAN between Ubuntu hosts&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part2/index.html&quot; target=&quot;_blank&quot;&gt;Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part3/index.html&quot; target=&quot;_blank&quot;&gt;Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;br /&gt;&lt;/p&gt;</content><author><name></name></author><category term="VxLAN" /><summary type="html">Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs.</summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 3</title><link href="http://0.0.0.0:4000/vxlan/static-vxlan-part3/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 3" /><published>2021-11-12T00:00:00+00:00</published><updated>2021-11-12T00:00:00+00:00</updated><id>http://0.0.0.0:4000/vxlan/static-vxlan-part3</id><content type="html" xml:base="http://0.0.0.0:4000/vxlan/static-vxlan-part3/">&lt;style&gt;
+p1 {
+  font-size: 11px;
+}
+p2 {
+  font-size: 12px;
+}
+&lt;/style&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+&lt;img src=&quot;/images/static_vxlan/vxlan_tunnel3.jpg&quot; alt=&quot;Overlay VxLAN Cumulus Linux&quot; title=&quot;VxLAN between Ubuntu and Cumulus VX&quot; /&gt;  
+&lt;/p&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+In Part 3 I will cover the case when Cumulus VX virtual switch is playing the role of DC edge gateway as well as interconnect between underlay and overlay network. On Cumulus virtual switch two VxLAN tunnels will be terminated from remote servers.  
+&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+Details on how to download Cumulus Linux and VPCS (Virtual PC Simulator) can be found in 
+&lt;a href=&quot;/vxlan/static-vxlan-part2/index.html&quot;&gt;Part 2&lt;/a&gt;.
+Like in Part 1 and 2, physical server with VMs will be deployed as virtual machine on baremetal KVM host and will be represented as &quot;srv&quot; and &quot;srv1&quot;. Nested VM (application) will be simulated with Linux network namespace. On Cumulus VX virtual switch will be used bridge, which is not VLAN aware, as both tunnels from srv and srv1 will be terminated inside that bridge. Details on how everything is interconnected you can find below on the network diagram.
+&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt; 
+  &lt;img src=&quot;/images/static_vxlan/net_diag3.jpg&quot; alt=&quot;VxLAN, VTEP, Overlay Network&quot; title=&quot;VxLAN Network diagram&quot; /&gt; 
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Prerequisites for servers (virtual machines):&lt;/strong&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;VM name&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;OS Version&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;Extra installed SW&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;srv&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Ubuntu 20.04&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;bridge-utils&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;srv1&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Ubuntu 20.04&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;bridge-utils&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;virtual switch&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Cumulus Linux 4.4.1 VX (Nvidia)&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt; &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 1. Run VMs and install bridge-utils&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s assume that virtual machine “srv” and “srv1” (Ubuntu), Cumulus VX vSwitch and VPCS are successfully deployed on KVM host.&lt;/p&gt;
+
+&lt;p&gt;Bridge-utils were installed on Ubuntu virtual machine using the command below:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apt install bridge-utils&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;version of bridge-utils we can check from CLI from srv and srv1 with the following command:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apt list | grep bridge-utils&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;output should be&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;bridge-utils/focal,now 1.6-2ubuntu1 amd64 [installed]&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;version can vary.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 2. Initial configuration of Linux srv, srv1  and Nvidia Cumulus VX virtual switch&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply configuration on srv&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Creation of namespaces.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns add vm3 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply configuration on srv1.&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns add vm1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Creation of bridges on both hosts srv and srv1.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add br-vxlan type bridge
+ip link set br-vxlan up
+ip link set mtu 9000 dev br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add static routes for Loopback IP on Cumulus VX switch on both hosts srv and srv1.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip route add 192.168.1.4/32 via 192.168.100.24 dev ens0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Disable spanning-tree on the bridges&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;brctl stp br-vxlan off
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Creation of veth interfaces on both host VMs.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add veth0 type veth peer veth1
+ip link set up veth0
+ip link set veth0 master br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply configuration on srv.&lt;/u&gt;&lt;br /&gt;
+Adding IP address on veth1 and bring interface up&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns exec vm3 ip a a 192.168.22.1/24 dev veth1
+ip netns exec vm3 ip link set up veth1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply configuration on srv1.&lt;/u&gt;&lt;br /&gt;
+Adding IP address on veth1 and bring interface up.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns exec vm1 ip a a 192.168.22.2/24 dev veth1
+ip netns exec vm1 ip link set up veth1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Configure Cumulus VX virtual switch.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;When you connect for the first time to Cumulus VX console it will request you to change default password.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;p1&gt;&lt;u&gt;Default User and Password for Cumulus VX:&lt;/u&gt;&lt;/p1&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user: cumulus
+pass: cumulus
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Set hostname of Cumulus Linux virtual switch.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add hostname leaf1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure L3 interface for connection with underlay network.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp1 ip address 192.168.100.24/24
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configuration of Loopback interface, which will be used for VTEP termination point.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add loopback lo ip address 192.168.1.4/32
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add swp2 interface (please note interface will be used without VLAN id).&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp2 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Create bridge not VLAN aware.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add bridge br-12
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add interface swp2 to bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add bridge br-12 ports swp2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 3. Configuration of  VxLAN Tunnel&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply on srv.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Create VxLAN tunnel interface with VNI 101.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add vx1 type vxlan id 101 local 192.168.100.20 remote 192.168.1.4 dev ens0 dstport 4789
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Bring up tunnel interface.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link set vx1 up
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add VxLAN tunnel interface to specific bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link set vx1 master br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply on srv1.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Create VxLAN tunnel interface with VNI 102.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add vx1 type vxlan id 102 local 192.168.100.21 remote 192.168.1.4 dev ens0 dstport 4789
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Bring up tunnel interface.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link set vx1 up
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add VxLAN tunnel interface to specific bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link set vx1 master br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Configure Cumulus VX virtual switch.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;p1&gt;&lt;u&gt;Default User and Password for Cumulus VX:&lt;/u&gt;&lt;/p1&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user: cumulus
+pass: cumulus
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add vni-101 and vni-102 interfaces.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-101 vxlan id 101
+net add vxlan vni-102 vxlan id 102
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add VxLAN interfaces to the bridge&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add bridge br-12 ports vni-101
+net add bridge br-12 ports vni-102
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;For both tunnels set local and remote VETP address&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-101 vxlan local-tunnelip 192.168.1.4
+net add vxlan vni-101 vxlan remoteip 192.168.100.20
+
+net add vxlan vni-102 vxlan local-tunnelip 192.168.1.4
+net add vxlan vni-102 vxlan remoteip 192.168.100.21
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 4. Add static MAC record to forwarding database&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply on srv and srv1.&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bridge fdb append 00:00:00:00:00:00 dev vx1 dst 192.168.1.4
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This step we can skip on Cumulus Linux virtual switch as it will be applied automatically.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 5. Connectivity check &lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Run PING command from VM1, VM3 and DB server (VPCS)
+&lt;img style=&quot;center&quot; src=&quot;/images/static_vxlan/con_check_vm1_vm3_db_cumulus.jpg&quot; alt=&quot;Ping from namespace&quot; title=&quot;Connectivity check with PING command&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Issue ping from VM3 (namespace)&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo ip netns exec vm3 ping 192.168.22.4 -- &amp;gt; remote IP on DB server.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;750&quot; height=&quot;250&quot; src=&quot;/images/static_vxlan/vm3_ping_db_part3.jpg&quot; alt=&quot;L2 frame, VxLAN, wireshark, packet capture, pcap&quot; title=&quot;Wireshark VxLAN packet capture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Issue ping from VM1 (namespace)&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo ip netns exec vm1 ping 192.168.22.4 -- &amp;gt; remote IP on DB server.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;img style=&quot;float&quot; width=&quot;750&quot; height=&quot;250&quot; src=&quot;/images/static_vxlan/vm1_ping_db.jpg&quot; alt=&quot;L2 frame, VxLAN, wireshark, packet capture, pcap&quot; title=&quot;Wireshark VxLAN packet capture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;From the capture you can see that two VxLAN tunnels have been used for interconnection with Cumulus VX virtual switch. Both tunnels landed on to one bridge on Cumulus VX virtual switch. That way we achieve communication between two VMs and DB server (VPCS).&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Issue ping from DB server (VPCS) to check connectivity with VM1 and VM3&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; width=&quot;750&quot; height=&quot;250&quot; src=&quot;/images/static_vxlan/db_srv_ping_vm3_pcap_part3.jpg&quot; alt=&quot;Ping from VPCS&quot; title=&quot;Connectivity check with PING command&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static_vxlan_part1/index.html&quot; target=&quot;_blank&quot;&gt;Part 1 Static VxLAN between Ubuntu hosts&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part2/index.html&quot; target=&quot;_blank&quot;&gt;Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part4/index.html&quot; target=&quot;_blank&quot;&gt;Part 4 Static VxLAN Data Center Interconnect&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;br /&gt;&lt;/p&gt;</content><author><name></name></author><category term="VxLAN" /><summary type="html">In Part 3 I will cover the case when Cumulus VX virtual switch is playing the role of DC edge gateway as well as interconnect between underlay and overlay network. On Cumulus virtual switch two VxLAN tunnels will be terminated from remote servers.</summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 2</title><link href="http://0.0.0.0:4000/vxlan/static-vxlan-part2/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 2" /><published>2021-10-31T00:00:00+00:00</published><updated>2021-10-31T00:00:00+00:00</updated><id>http://0.0.0.0:4000/vxlan/static-vxlan-part2</id><content type="html" xml:base="http://0.0.0.0:4000/vxlan/static-vxlan-part2/">&lt;style&gt;
+p1 {
+  font-size: 11px;
+}
+p2 {
+  font-size: 12px;
+}
+&lt;/style&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+&lt;img src=&quot;/images/static_vxlan/vxlan_tunnel2.jpg&quot; alt=&quot;Overlay VxLAN Cumulus Linux&quot; title=&quot;VxLAN between Ubuntu and Cumulus VX&quot; /&gt;  
+&lt;/p&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+In Part 2 will be covered the case when we have physical DB server connected to network via L2/L3 switch and it should communicate with application running inside virtual machine. Nvidia Cumulus VX virtual switch will play the role of L2/L3 switch. On Cumulus virtual switch VxLAN tunnel be terminated from remote server.
+&lt;/p&gt;
+
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+To download Nvidia Cumulus VX virtual switch first you need to register. The procedure is very friendly and corporate email address is not required. Nvidia didn't limit bandwidth or some features of virtual switch. Cumulus Linux VX (virtual switch) does not require any license, which is really great for labs, PoC and tests.
+&lt;a href=&quot;https://www.nvidia.com/en-us/networking/ethernet-switching/cumulus-vx/download/&quot; target=&quot;_blank&quot;&gt;Click here to download Nvidia Cumulus VX virtual switch&lt;/a&gt;
+DB server will be simulated with VPCS (Virtual PC Simulator). VPCS is actually application with few command line utilities such as ping, ip interface configuration etc. It can be run on Linux or Windows OS. Instructions on how to use and run VPCS you can find on the following link  &lt;a href=&quot;https://wiki.freecode.com.cn/doku.php?id=wiki:vpcs&quot; target=&quot;_blank&quot;&gt;click here&lt;/a&gt;.
+Like in Part 1, physical server with VMs will be deployed as virtual machine on baremetal KVM host and will be represented as &quot;srv&quot;. Nested VM (application) will be simulated with Linux network namespace. Details on how everything is interconnected you can find below on the network diagram.
+&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+  &lt;img src=&quot;/images/static_vxlan/net_diag2.jpg&quot; alt=&quot;VxLAN, VTEP, Overlay Network&quot; title=&quot;VxLAN Network diagram&quot; /&gt; 
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Prerequisites for servers (virtual machines):&lt;/strong&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;VM name&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;OS Version&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;Extra installed SW&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;srv&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Ubuntu 20.04&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;bridge-utils&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;switch&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Cumulus Linux 4.4.1 VX (Nvidia)&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt; &lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 1. Run VMs and install bridge-utils&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s assume that virtual machine “srv” (Ubuntu), Cumulus VX vSwitch and VPCS are successfully deployed on KVM host.&lt;/p&gt;
+
+&lt;p&gt;Bridge-utils were installed on Ubuntu virtual machine using the command below:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apt install bridge-utils&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;version of bridge-utils we can check from CLI from srv and srv1 with the following command:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apt list | grep bridge-utils&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;output should be&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;bridge-utils/focal,now 1.6-2ubuntu1 amd64 [installed]&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;version can vary.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 2. Initial configuration of Linux srv and Nvidia Cumulus VX virtual switch&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply configuration on srv&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Creation of namespaces.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns add vm3 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Creation of bridges on host srv.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add br-vxlan type bridge
+ip link set br-vxlan up
+ip link set mtu 9000 dev br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Disable spanning-tree on the bridges&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;brctl stp br-vxlan off
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Creation of veth interfaces on host srv.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add veth0 type veth peer veth1
+ip link set up veth0
+ip link set veth0 master br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Adding IP address on veth1 and bring interface up&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns exec vm3 ip a a 192.168.22.1/24 dev veth1
+ip netns exec vm3 ip link set up veth1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Configure Cumulus VX virtual switch.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;When you connect for the first time to Cumulus VX console it will request you to change default password.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;p1&gt;&lt;u&gt;Default User and Password for Cumulus VX:&lt;/u&gt;&lt;/p1&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;user: cumulus
+pass: cumulus
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p align=&quot;left&quot;&gt;
+  &lt;img src=&quot;/images/static_vxlan/cumulus_login1.jpg&quot; width=&quot;450&quot; height=&quot;200 &quot; alt=&quot;VxLAN, VTEP, Overlay Network&quot; title=&quot;Cumulus ZTP&quot; /&gt; 
+&lt;/p&gt;
+&lt;p&gt;When you log in for the first time on Cumulus VX virtual switch, you will need to stop ZTP - zero touch provisioning process. Please check below:&lt;/p&gt;
+
+&lt;p align=&quot;left&quot;&gt;
+  &lt;img src=&quot;/images/static_vxlan/cumulus_login2.jpg&quot; width=&quot;450&quot; height=&quot;150 &quot; alt=&quot;VxLAN, VTEP, Overlay Network&quot; title=&quot;Disable Cumulus ZTP&quot; /&gt; 
+&lt;/p&gt;
+
+&lt;p&gt;Set hostname of Cumulus Linux virtual switch.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add hostname leaf1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure L3 interface for connection with underlay network.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp1 ip address 192.168.100.24/24
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configuration of Loopback interface, which will be used for VTEP termination point.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add loopback lo ip address 192.168.1.4/32
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add swp2 interface to VLAN 101.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add interface swp2 bridge access 101
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Create bridge VLAN aware (Recommended by Cumulus network team).&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add bridge bridge vlan-aware
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add port swp2 to bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add bridge bridge ports swp2
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure bridge VLAN id.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add bridge bridge vids 101
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 3. Configuration of  VxLAN Tunnel&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply on srv.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Create VxLAN tunnel interface with VNI 101.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add vx1 type vxlan id 101 local 192.168.100.20 remote 192.168.1.4 dev ens0 dstport 4789
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Bring up tunnel interface.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link set vx1 up
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add VxLAN tunnel interface to specific bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link set vx1 master br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply on Cumulus Linux virtual switch.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Create VxLAN tunnel interface with VNI 101.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-101 vxlan id 101
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Allow VLAN id 101 for vni-101 interface.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-101 bridge access 101
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;BPDU guard and port BPDU filter will be added automatically.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-101 stp bpduguard
+net add vxlan vni-101 stp portbpdufilter
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure local VTEP, local Loopback0.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-101 vxlan local-tunnelip 192.168.1.4
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Configure remote VTEP, IP address of remote server.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add vxlan vni-101 vxlan remoteip 192.168.100.20
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add VxLAN interface to the bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;net add bridge bridge ports vni-101
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 4. Add static MAC record to forwarding database&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply on srv.&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bridge fdb append 00:00:00:00:00:00 dev vx0 dst 192.168.1.4
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;This step we can skip on Cumulus Linux virtual switch as it will be applied automatically.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 5. Connectivity check &lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Run PING command from both side (namespace VM3 and VPCS DB server).
+&lt;img style=&quot;center&quot; src=&quot;/images/static_vxlan/vm3_ping_db_srv.jpg&quot; alt=&quot;Ping from namespace&quot; title=&quot;Connectivity check with PING command&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Issue ping from VM3 (namespace)&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo ip netns exec vm3 ping 192.168.22.4 -- &amp;gt; remote IP on DB server.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Issue ping from DB server (VPCS)&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img style=&quot;center&quot; src=&quot;/images/static_vxlan/ping_db_srv_vm3.jpg&quot; alt=&quot;Ping from VPCS&quot; title=&quot;Connectivity check with PING command&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So, let’s check packet capture:
+&lt;img style=&quot;float&quot; width=&quot;750&quot; height=&quot;400&quot; src=&quot;/images/static_vxlan/db_srv_ping_vm3_pcap.jpg&quot; alt=&quot;L2 frame, VxLAN, wireshark, packet capture, pcap&quot; title=&quot;Wireshark VxLAN packet capture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static_vxlan_part1/index.html&quot; target=&quot;_blank&quot;&gt;Part 1 Static VxLAN between Ubuntu hosts&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part3/index.html&quot; target=&quot;_blank&quot;&gt;Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part4/index.html&quot; target=&quot;_blank&quot;&gt;Part 4 Static VxLAN Data Center Interconnect&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;br /&gt;&lt;/p&gt;</content><author><name></name></author><category term="VxLAN" /><summary type="html">In Part 2 will be covered the case when we have physical DB server connected to network via L2/L3 switch and it should communicate with application running inside virtual machine. Nvidia Cumulus VX virtual switch will play the role of L2/L3 switch. On Cumulus virtual switch VxLAN tunnel be terminated from remote server.</summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 1</title><link href="http://0.0.0.0:4000/vxlan/static_vxlan_part1/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 1" /><published>2021-10-01T00:00:00+00:00</published><updated>2021-10-01T00:00:00+00:00</updated><id>http://0.0.0.0:4000/vxlan/static_vxlan_part1</id><content type="html" xml:base="http://0.0.0.0:4000/vxlan/static_vxlan_part1/">&lt;p align=&quot;center&quot;&gt;
+&lt;img src=&quot;/images/static_vxlan/vxlan_tunnel.jpg&quot; alt=&quot;VxLAN Overlay Ubuntu Intro&quot; title=&quot;Introduction to VxLAN&quot; /&gt; 
+&lt;/p&gt;
+&lt;p&gt;In this blog post I will cover static VxLAN tunnels, it means no multicast flood and learning or BGP with EVPN signalling.
+Part 1 will cover “Static VxLAN tunnels between two Linux hosts” and you could have guessed already that there will be Part 2 and Part 3, or even more, who knows.
+Future subjects of blog posts will be kept secret for now.😉&lt;/p&gt;
+
+&lt;h3 id=&quot;introduction-to-vxlan---virtual-extensible-lan&quot;&gt;&lt;span style=&quot;color:#074080&quot;&gt;Introduction to VxLAN - Virtual Extensible LAN&lt;/span&gt;&lt;/h3&gt;
+&lt;p style=&quot;text-align: justify;&quot;&gt;
+I will try not to bother you with heaps of theory that you can find in the books or on the Internet. However I will mention some important facts about VxLAN.
+So, What is VxLAN? It is just yet another encapsulation, which allows you transporting L2 frames over L3 network and that way extending L2 domain. Moreover, it provides flexibility and scalability and solve limitations of 4096 vlans. Also it introduces overhead of 16 bytes (UDP 8 bytes + VxLAN header 8 Bytes). So because of that the underlay network should support MTU size 1600 bytes, not less.
+VxLAN adds header to original L2 frame and encapsulates all to UDP and transport via underlay IP network.
+VTEPs (VxLAN Tunnel Endpoint) are the points on network (server) nodes where traffic will be packed to encapsulation and on remote point unpack and send to final destination. 
+&lt;/p&gt;
+&lt;p&gt;Below you can see L2 frame before and after encapsulation to VxLAN.&lt;/p&gt;
+&lt;p align=&quot;center&quot;&gt;
+  &lt;img src=&quot;/images/static_vxlan/vxlan.jpg&quot; alt=&quot;L2 frame, VxLAN&quot; title=&quot;L2 Frame inside VxLAN&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;It’s time to stop talking and start lab configuration.&lt;/p&gt;
+
+&lt;h3 id=&quot;part-1-static-vxlan-between-two-linux-hosts&quot;&gt;&lt;span style=&quot;color:#074080&quot;&gt;Part 1 Static VxLAN between two Linux hosts&lt;/span&gt;&lt;/h3&gt;
+&lt;p&gt;In Part 1 I will cover the case when we have two physical servers and the requirement is to connect virtual machines to one subnet.
+For the sake of simplicity, physical servers will be deployed as virtual machines on baremetal KVM host and they will represented as “srv” and “srv1”. Nested VMs will be simulated with Linux network namespaces. This way we can save hardware resources on KVM host. Details on how everything is interconnected you can find below on the network diagram.&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;
+  &lt;img src=&quot;/images/static_vxlan/net_diag.jpg&quot; alt=&quot;VxLAN, VTEP, Overlay Network&quot; title=&quot;Network diagram VxLAN between Ubuntu KVM hosts&quot; /&gt;
+&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Prerequisites for servers (virtual machines):&lt;/strong&gt;&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;VM name&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;OS Version&lt;/th&gt;
+      &lt;th style=&quot;text-align: left&quot;&gt;Extra installed SW&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;srv&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Ubuntu 20.04&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;bridge-utils&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;srv1&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;Ubuntu 20.04&lt;/td&gt;
+      &lt;td style=&quot;text-align: left&quot;&gt;bridge-utils&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 1. Run VMs and install bridge-utils&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s assume that virtual machines “srv” and “srv1” are successfully deployed on KVM host and bridge-utils were installed on both VMs using the command below:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apt install bridge-utils&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;version of bridge-utils we can check from CLI from srv and srv1 with the following command:&lt;/p&gt;
+
+&lt;p&gt;&lt;code&gt;apt list | grep bridge-utils&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;output should be&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;code&gt;bridge-utils/focal,now 1.6-2ubuntu1 amd64 [installed]&lt;/code&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;version can vary.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 2. Create and configure namespaces, bridges and veth interfaces pairs &lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Creation of namespaces.&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply configuration on srv.&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns add vm3 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply configuration on srv1.&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns add vm1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Creation of bridges on both host VMs.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add br-vxlan type bridge
+ip link set br-vxlan up
+ip link set mtu 9000 dev br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Disable spanning-tree on the bridges&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;brctl stp br-vxlan off
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Creation of veth interfaces on both host VMs.&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add veth0 type veth peer veth1
+ip link set up veth0
+ip link set veth0 master br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply configuration on srv.&lt;/u&gt;&lt;br /&gt;
+Adding IP address on veth1 and bring interface up&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns exec vm3 ip a a 192.168.22.1/24 dev veth1
+ip netns exec vm3 ip link set up veth1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply configuration on srv1.&lt;/u&gt;&lt;br /&gt;
+Adding IP address on veth1 and bring interface up.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip netns exec vm1 ip a a 192.168.22.2/24 dev veth1
+ip netns exec vm1 ip link set up veth1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 3. Configuration of  VxLAN Tunnel&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Creation of VxLAN tunnel interface vx0 on srv and srv1.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Create VxLAN tunnel interface with VNI 100.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add vx0 type vxlan id 100 local 192.168.100.20 remote 192.168.100.21 dev ens0 dstport 4789
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add IP address on tunnel and bring up interface.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip a a 192.168.1.1/24 dev vx0
+ip link set vx0 up
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add VxLAN tunnel interface to specific bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link set vx0 master br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Apply configuration on srv1.&lt;/u&gt;&lt;/p&gt;
+
+&lt;p&gt;Create VxLAN tunnel interface with VNI 100.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link add vx0 type vxlan id 100 local 192.168.100.21 remote 192.168.100.20 dev ens0 dstport 4789
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add IP address on tunnel and bring up interface.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip a a 192.168.1.2/24 dev vx0
+ip link set vx0 up
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Add VxLAN tunnel interface to specific bridge.&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ip link set vx0 master br-vxlan
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 4. Add static MAC record to forwarding database&lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Apply configuration on srv.&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bridge fdb append 00:00:00:00:00:00 dev vx0 dst 192.168.100.21
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;u&gt;Apply configuration on srv1.&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;bridge fdb append 00:00:00:00:00:00 dev vx0 dst 192.168.100.20
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;span style=&quot;color:#074080&quot;&gt;Step 5. Connectivity check &lt;/span&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Run PING command from both VMs (namespaces).
+&lt;img style=&quot;center&quot; src=&quot;/images/static_vxlan/vm1_ping_vm3.jpg&quot; alt=&quot;Ping from namespace&quot; title=&quot;Connectivity check with PING command&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;u&gt;Issue ping from VM3 (namespace)&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo ip netns exec vm3 ping 192.168.22.2 -- &amp;gt; remote IP inside namespace VM1
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;u&gt;Issue ping from VM1 (namespace)&lt;/u&gt;&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;sudo ip netns exec vm1 ping 192.168.22.1 -- &amp;gt; remote IP inside namespace VM3
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;Below is capture which is prove that all ICMP packets (request, reply) were encapsulated to VxLAN.
+&lt;img style=&quot;float&quot; width=&quot;750&quot; height=&quot;400&quot; src=&quot;/images/static_vxlan/vm3_ping_vm1_pcap.jpg&quot; alt=&quot;L2 frame, VxLAN, wireshark, packet capture, pcap&quot; title=&quot;Wireshark VxLAN packet capture&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part2/index.html&quot; target=&quot;_blank&quot;&gt;Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part3/index.html&quot; target=&quot;_blank&quot;&gt;Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;strong&gt;&lt;a href=&quot;/vxlan/static-vxlan-part4/index.html&quot; target=&quot;_blank&quot;&gt;Part 4 Static VxLAN Data Center Interconnect&lt;/a&gt;&lt;/strong&gt;&lt;br /&gt;
+&lt;br /&gt;&lt;/p&gt;</content><author><name></name></author><category term="VxLAN" /><summary type="html">In this blog post I will cover static VxLAN tunnels, it means no multicast flood and learning or BGP with EVPN signalling. Part 1 will cover “Static VxLAN tunnels between two Linux hosts” and you could have guessed already that there will be Part 2 and Part 3, or even more, who knows. Future subjects of blog posts will be kept secret for now.😉</summary></entry></feed>

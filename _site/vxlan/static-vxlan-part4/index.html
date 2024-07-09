@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Five easy steps to configure static VxLAN Part 4 | Tomislav Kranjec’s Blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Five easy steps to configure static VxLAN Part 4" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs." />
+<meta property="og:description" content="Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs." />
+<link rel="canonical" href="http://0.0.0.0:4000/vxlan/static-vxlan-part4/" />
+<meta property="og:url" content="http://0.0.0.0:4000/vxlan/static-vxlan-part4/" />
+<meta property="og:site_name" content="Tomislav Kranjec’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-12-24T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Five easy steps to configure static VxLAN Part 4" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"http://0.0.0.0:4000/vxlan/static-vxlan-part4/"},"url":"http://0.0.0.0:4000/vxlan/static-vxlan-part4/","headline":"Five easy steps to configure static VxLAN Part 4","dateModified":"2021-12-24T00:00:00+00:00","datePublished":"2021-12-24T00:00:00+00:00","description":"Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Tomislav Kranjec's Blog" />
+<!-- Favicon head tag -->
+<link rel="shortcut icon" type="image/ico" href="/images/t.png">
+<link rel="shortcut icon" sizes="196x196" href="/images/t.png">
+<link rel="apple-touch-icon" href="/images/t.png">
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Tomislav Kranjec&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+        <div class="trigger"><a class="page-link" href="/categories/">Categories</a><a class="page-link" href="/downloads/">Downloads</a><a class="page-link" href="/mycerts/">My Certs</a><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/subscribe/">Subscribe</a></div>
+      </nav></div>
+      <!-- Below we can add social media buttons, buttons we can find inside _includes footer -->
+   <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/tomk39" title="tomk39"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://www.linkedin.com/in/tkranjec" title="tkranjec"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg></a></li><li><a rel="me" href="https://twitter.com/tkranjec" title="tkranjec"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" style="color:#074080" itemprop="name headline">Five easy steps to configure static VxLAN Part 4</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2021-12-24T00:00:00+00:00" itemprop="datePublished">
+        Dec 24, 2021
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <style>
+p1 {
+  font-size: 11px;
+}
+p2 {
+  font-size: 12px;
+}
+</style>
+
+<p align="center">
+<img src="/images/static_vxlan/vxlan_tunnel4.jpg" alt="Overlay VxLAN Cumulus Linux" title="VxLAN between Cumulus VX and Juniper vMX" />  
+</p>
+<p style="text-align: justify;">
+Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs.
+</p>
+
+<p style="text-align: justify;">
+Data center gateways will be simulated with Cumulus Linux VX vSwitch and Juniper vMX virtual router. This time I will skip installation and configuration of the following:  
+<ul>
+<li>namespaces for simulation of VM1 and VM3</li>
+<li>Download VPCS and configuration</li>
+<li>Configuration of VxLAN tunnels from srv and srv1 to Cumulus VX switch as it will be the same like in Part 3.</li>
+</ul>
+All details related to the above configuration and deployment you can find in blogposts <a href="/vxlan/static-vxlan-part2/index.html">Part 2</a> and <a href="/vxlan/static-vxlan-part3/index.html">Part 3</a>.
+</p>
+
+<p align="center"> 
+  <img src="/images/static_vxlan/net_diag4.jpg" alt="VxLAN, VTEP, Overlay Network" title="VxLAN Network diagram" /> 
+</p>
+
+<p><strong>Virtual router, switch and linux host machines:</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">VM name</th>
+      <th style="text-align: left">OS Version</th>
+      <th style="text-align: left">Extra installed SW</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">srv</td>
+      <td style="text-align: left">Ubuntu 20.04</td>
+      <td style="text-align: left">bridge-utils</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">srv1</td>
+      <td style="text-align: left">Ubuntu 20.04</td>
+      <td style="text-align: left">bridge-utils</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">virtual switch</td>
+      <td style="text-align: left">Cumulus Linux 4.4.1 VX (Nvidia)</td>
+      <td style="text-align: left"> </td>
+    </tr>
+    <tr>
+      <td style="text-align: left">virtual router</td>
+      <td style="text-align: left">Juniper vMX  JUNOS 18.4R1.8</td>
+      <td style="text-align: left"> </td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong><span style="color:#074080">Step 1. Configure interfaces on dcgw1 and dcgw2</span></strong></p>
+
+<p>On dcgw1 (Cumulus Linux) configure interface for OSPF peering with dc-interconnect router</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp3 ip address 172.21.100.1/30
+</code></pre></div></div>
+<p>add loopback which will be used for VTEP termination point.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add loopback lo ip address 192.168.1.4/32
+</code></pre></div></div>
+<p>Above we should repeat for dcgw2 (Juniper vMX)</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set interfaces xe-0/0/4 unit 0 family inet address 172.21.101.1/30  
+</code></pre></div></div>
+<p>add loopback which will be used for VTEP termination point.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set interfaces lo0 unit 5 family inet address 192.168.1.5/32  
+</code></pre></div></div>
+<p><strong><span style="color:#074080">Step 2. Configure dc-interconnect L3 switch interfaces(Cumulus Linux VX)</span></strong></p>
+
+<p>Add loopback</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add loopback lo ip address 2.2.2.2/32
+</code></pre></div></div>
+<p>Add interface for peering with dcgw1</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp3 ip address 172.21.100.2/30
+</code></pre></div></div>
+<p>Add interface for peering with dcgw2</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp1 ip address 172.21.101.2/30
+</code></pre></div></div>
+<p><strong><span style="color:#074080">Step 3. Configuration of  OSPF peering</span></strong></p>
+
+<p><u>Apply on dcgw1.</u></p>
+
+<p>Set router ID.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf router-id 192.168.1.4
+</code></pre></div></div>
+<p>Add specific networks to OSPF.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf network 192.168.1.4/32 area 1
+net add ospf network 172.21.100.0/30 area 1
+</code></pre></div></div>
+<p>Change network type on link between dcgw1 and dc-interconnect.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp3 ospf network point-to-point
+</code></pre></div></div>
+<p>On unnecessary interfaces stop sending OSPF messages.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf passive-interface swp1
+net add ospf passive-interface swp2
+net add ospf passive-interface swp4
+net add ospf passive-interface swp5
+net add ospf passive-interface swp6
+net add ospf passive-interface swp7
+</code></pre></div></div>
+<p><u>Apply on dc-interconnect.</u></p>
+
+<p>Set router ID.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf router-id 2.2.2.2
+</code></pre></div></div>
+<p>Add specific networks to OSPF.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf network 2.2.2.2/32 area 1
+net add ospf network 172.21.100.0/30 area 1
+net add ospf network 172.21.101.0/30 area 1
+</code></pre></div></div>
+<p>Change network type on links between dc-interconnect dcgw1 and dcgw2.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp3 ospf network point-to-point
+net add interface swp1 ospf network point-to-point
+</code></pre></div></div>
+<p>On unnecessary interfaces stop sending OSPF messages.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf passive-interface swp2
+net add ospf passive-interface swp4
+net add ospf passive-interface swp5
+net add ospf passive-interface swp6
+net add ospf passive-interface swp67
+</code></pre></div></div>
+<p><u>Apply on dcgw2.</u></p>
+
+<p>Set router ID.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set routing-options router-id 192.168.1.5
+</code></pre></div></div>
+<p>Change network type on links between dc-interconnect and dcgw2 and enable OSPF on xe-0/0/4 (172.21.101.0/30).</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set protocols ospf area 0.0.0.1 interface xe-0/0/4.0 interface-type p2p
+</code></pre></div></div>
+<p>Enable OSPF on loopback</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set protocols ospf area 0.0.0.1 interface lo0.5
+</code></pre></div></div>
+<p>Check OSPF routes on dc-interconnect L3 switch.</p>
+
+<p><img style="center" src="/images/static_vxlan/ospf_check_dcintcon.jpg" alt="Show OSPF routes" title="OSPF Routing" /></p>
+
+<p><strong><span style="color:#074080">Step 4. Add static VxLAN tunnels between dcgw1 and dcgw2</span></strong><br />
+<u>Apply on dcgw1.</u><br />
+Create VxLAN tunnel interface.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-103 vxlan id 103
+</code></pre></div></div>
+<p>Add vni-103 to specific bridge.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge br-22 ports vni-103
+</code></pre></div></div>
+<p>Configure Loopback primary address for VTEP source.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-103 vxlan local-tunnelip 192.168.1.4
+</code></pre></div></div>
+<p>Configure remote VTEP on dcgw2.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-103 vxlan remoteip 192.168.1.5
+</code></pre></div></div>
+<p><u>Apply on dcgw2.</u><br />
+Create bridge domain.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set bridge-domains br-vl22 vlan-id 22
+set bridge-domains br-vl22 vxlan vni 103
+</code></pre></div></div>
+<p>Enable “ingress-node-replication” this will handle incoming broadcast, unknown unicast, or multicast (BUM) traffic.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set bridge-domains br-vl22 vxlan ingress-node-replication
+</code></pre></div></div>
+<p>Configure Loopback lo0.5 for VTEP source.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set switch-options vtep-source-interface lo0.5
+</code></pre></div></div>
+<p>Configure remote VTEP on dcgw1.</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set switch-options remote-vtep-list 192.168.1.4
+</code></pre></div></div>
+<p><strong><span style="color:#074080">Step 5. Connectivity check </span></strong></p>
+
+<p>Run PING command from VM1, VM3 and DB server (VPCS)
+<img style="center" src="/images/static_vxlan/vm1_vm3_ping_db_part4.jpg" alt="Ping from namespace" title="Connectivity check with PING command" /></p>
+
+<p><u>Issue ping from VM3 (namespace)</u></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm3 ping 192.168.22.4 -- &gt; remote IP on DB server.
+</code></pre></div></div>
+<p><img style="float" width="650" height="150" src="/images/static_vxlan/vm3_ping_db_part4.jpg" alt=" PING ICMP remote DB Server" title="VM3 Ping remote DB server" /></p>
+
+<p><img style="float" width="750" height="250" src="/images/static_vxlan/vm3_ping_db_part4_v2.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
+
+<p><u>Issue ping from VM1 (namespace)</u></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm1 ping 192.168.22.4 -- &gt; remote IP on DB server.
+</code></pre></div></div>
+<p><img style="float" width="650" height="150" src="/images/static_vxlan/vm1_ping_db_part4.jpg" alt=" PING ICMP remote DB Server" title="VM3 Ping remote DB server" /></p>
+
+<p><img style="float" width="750" height="250" src="/images/static_vxlan/vm1_ping_db_part4_v2.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
+
+<p>From the capture you can see that two VxLAN tunnels were used for interconnection with Cumulus VX virtual switch. Both tunnels landed on to one bridge on Cumulus VX virtual switch. That way we achieve communication between two VMs and DB server (VPCS).</p>
+
+<p><u>Issue ping from DB server (VPCS) to check connectivity with VM1 and VM3</u></p>
+
+<p><img style="center" width="750" height="250" src="/images/static_vxlan/db_srv_ping_vm3_pcap_part3.jpg" alt="Ping from VPCS" title="Connectivity check with PING command" /></p>
+
+<p>Based on the ping and packet captures we can conclude that we have L2 connectivity between two data centers. It means that we build overlay network on top of classical L3 network connectivity.</p>
+
+<p><br />
+<strong><a href="/vxlan/static_vxlan_part1/index.html" target="_blank">Part 1 Static VxLAN between Ubuntu hosts</a></strong><br />
+<strong><a href="/vxlan/static-vxlan-part2/index.html" target="_blank">Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth</a></strong><br />
+<strong><a href="/vxlan/static-vxlan-part3/index.html" target="_blank">Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway</a></strong><br />
+<br /></p>
+
+  </div><a class="u-url" href="/vxlan/static-vxlan-part4/" hidden></a>
+  <div class="post-categories">
+    
+    <h5>categories: 
+    <a href="/categories/#VxLAN">VxLAN</a>
+    
+    
+  </h5>
+  </div>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>RSS Feed</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</p>
+      </div>
+<!-- below were social media buttons -->
+
+  </div>
+
+</footer>
+</body>
+
+</html>
