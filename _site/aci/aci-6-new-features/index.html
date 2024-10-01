@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.7.1 -->
+<title>Unlocking the Power of Cisco ACI 6.0 | Tomislav Kranjec’s Blog</title>
+<meta name="generator" content="Jekyll v4.2.0" />
+<meta property="og:title" content="Unlocking the Power of Cisco ACI 6.0" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="The Cisco ACI 6.0 release has been available for a couple of months now. Let’s check out what it brings to network engineers and IT professionals. Experience a new era of enhanced performance, security, and automation capabilities. In this blog, we’ll dive into the key enhancements of Cisco ACI 6.0 and explore how they can empower your network infrastructure." />
+<meta property="og:description" content="The Cisco ACI 6.0 release has been available for a couple of months now. Let’s check out what it brings to network engineers and IT professionals. Experience a new era of enhanced performance, security, and automation capabilities. In this blog, we’ll dive into the key enhancements of Cisco ACI 6.0 and explore how they can empower your network infrastructure." />
+<link rel="canonical" href="http://0.0.0.0:4000/aci/aci-6-new-features/" />
+<meta property="og:url" content="http://0.0.0.0:4000/aci/aci-6-new-features/" />
+<meta property="og:site_name" content="Tomislav Kranjec’s Blog" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-09-27T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Unlocking the Power of Cisco ACI 6.0" />
+<script type="application/ld+json">
+{"@type":"BlogPosting","url":"http://0.0.0.0:4000/aci/aci-6-new-features/","headline":"Unlocking the Power of Cisco ACI 6.0","dateModified":"2024-09-27T00:00:00+00:00","datePublished":"2024-09-27T00:00:00+00:00","mainEntityOfPage":{"@type":"WebPage","@id":"http://0.0.0.0:4000/aci/aci-6-new-features/"},"description":"The Cisco ACI 6.0 release has been available for a couple of months now. Let’s check out what it brings to network engineers and IT professionals. Experience a new era of enhanced performance, security, and automation capabilities. In this blog, we’ll dive into the key enhancements of Cisco ACI 6.0 and explore how they can empower your network infrastructure.","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="http://0.0.0.0:4000/feed.xml" title="Tomislav Kranjec's Blog" />
+<!-- Favicon head tag -->
+<link rel="shortcut icon" type="image/ico" href="/images/t.png">
+<link rel="shortcut icon" sizes="196x196" href="/images/t.png">
+<link rel="apple-touch-icon" href="/images/t.png">
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/">Tomislav Kranjec&#39;s Blog</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+        <div class="trigger"><a class="page-link" href="/categories/">Categories</a><a class="page-link" href="/downloads/">Downloads</a><a class="page-link" href="/mycerts/">My Certs</a><a class="page-link" href="/about/">About Me</a><a class="page-link" href="/subscribe/">Subscribe</a></div>
+      </nav></div>
+      <!-- Below we can add social media buttons, buttons we can find inside _includes footer -->
+   <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/tomk39" title="tomk39"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://www.linkedin.com/in/tkranjec" title="tkranjec"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#linkedin"></use></svg></a></li><li><a rel="me" href="https://twitter.com/tkranjec" title="tkranjec"><svg class="svg-icon grey"><use xlink:href="/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" style="color:#074080" itemprop="name headline">Unlocking the Power of Cisco ACI 6.0</h1>
+    <p class="post-meta"><time class="dt-published" datetime="2024-09-27T00:00:00+00:00" itemprop="datePublished">
+        Sep 27, 2024
+      </time></p>
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <p align="center">
+<img src="/images/aci_6_new_features/1.png" alt="ACI_60" title="ACI_60" />   
+</p>
+<p style="text-align: justify;">
+The Cisco ACI 6.0 release has been available for a couple of months now. Let’s check out what it brings to network engineers and IT professionals. Experience a new era of enhanced performance, security, and automation capabilities. In this blog, we’ll dive into the key enhancements of Cisco ACI 6.0 and explore how they can empower your network infrastructure.
+</p>
+
+<p><strong><span style="color:#074080">Main three features and enhancements in Cisco ACI 6.0.2 and 6.0.3</span></strong></p>
+
+<ol>
+  <li>Virtual APIC on VMware ESXi and Cloud</li>
+  <li>VMM Integration with Nutanix AHV</li>
+  <li>Nexus Dashboard - Connectivity analysis</li>
+</ol>
+
+<p><strong><span style="color:#074080">1. Virtual APIC  6.0(2)F</span></strong></p>
+
+<ul>
+  <li>No physical APICs.</li>
+  <li>No configuration limitations you can administer it like a regular APICs.</li>
+  <li>Scale is pretty much same as for physical APIC.</li>
+  <li>Limitations not able to run applications such as ELAM, policy explorer.</li>
+  <li>APICs can be connected to leaf switches directly.</li>
+  <li>Or they can be connected remotely via L3 network.
+During the initial setup, the wizard will ask you to choose how the APIC is connected to the network. Figure 1 below is an example.</li>
+  <li>Virtual APIC Cluster Fully functional APIC that can manage up to 200 switches.</li>
+  <li>6.0(2)F Cloud hosted APIC Cluster can only be deployed within AWS Cloud.</li>
+</ul>
+<p align="center">
+<img src="/images/aci_6_new_features/2.png" alt="ACI 60" title="ACI 60" /> 
+</p>
+<p><strong>Figure 1</strong> ACI setup wizard</p>
+
+<p><strong><span style="color:#074080">2. Integration with Nutanix AHV hypervisor  6.0(3)F</span></strong></p>
+<ul>
+  <li>APICs connect and authenticate to Prism Manager.</li>
+  <li>Integration of Nutanix Acropolis Hypervisor (AHV) with Cisco Application Centric Infrastructure (ACI).</li>
+  <li>This integration provides virtual and physical network automation and VM endpoints visibility in Cisco ACI.</li>
+  <li>End to end network automation and end to end visibility.</li>
+</ul>
+
+<p><strong><span style="color:#074080">3. Nexus Dashboard - Connectivity Analysis 6.0(2)F</span></strong></p>
+
+<ul>
+  <li>Troubleshooting between two End points, src and dst IP addresses or src and dst MAC addresses.</li>
+  <li>Visibility of what happening between control and data plane.</li>
+  <li>Verification of control and data plane.</li>
+  <li>Traces all possible forwarding paths between source and destinations.</li>
+  <li>Identifies if there are problems in the path and what is causing issues.</li>
+  <li>Helps to highlight real root cause, perform forwarding checks.</li>
+</ul>
+
+<p><strong><span style="color:#074080">4.Interface policy - simplify configuration</span></strong></p>
+<ul>
+  <li>This type of configuration is optional there is no need to change if you already master polices configuration. On that way you will keep everything under your control.</li>
+  <li>This is more for new guys which is starting to use ACI Fabric.</li>
+  <li>Guys with experience will not have so many benefits from this feature.</li>
+  <li>It is compatible with previous manual configuration of polices.</li>
+  <li>Not recommended for brown field deployments, I would like to recommend only for green field deployment.</li>
+</ul>
+
+<p><strong><span style="color:#074080">5.Weight-Based Symmetric PBR</span></strong></p>
+
+<p>In 6.0 it was introduced Weight-based PBR it means that we can send more traffic to specific node.
+Use case:
+•	On specific node we have connected Load Balancer.
+•	On specific node we have more powerful firewall in the group.
+•	Introducing new firewall, we can redirect small amount of traffic to new firewall for test purposes.</p>
+
+<p><strong><span style="color:#074080">6.Stretched L3out SVI across remote leaves.</span></strong></p>
+
+<ul>
+  <li>Supported for stretching a non-vPC L3Out SVI across remote leaf switches
+Use cases:</li>
+  <li>Mobile packet core.</li>
+  <li>Containerized workloads special at the Edge.</li>
+  <li>Cloud native network functions CNF.</li>
+</ul>
+
+<p><strong><span style="color:#074080">7. Multi-Site support for vzAny PBR and L3Out-to-L3Out PBR use cases.</span></strong>
+From ACI 6.0(4)F and NDO 4.2(3) following uses cases are supported:</p>
+<ul>
+  <li>vzAny-to-vzAny (Intra VRF).</li>
+  <li>vzAny-to-EPG (Intra VRF).</li>
+  <li>vzAny-to-L3out (Intra VRF).</li>
+  <li>L3out-to-L3out ((Intra VRF) and inter-VRF).</li>
+  <li>Standard EPG-to-EPG subnet under consumer still is required.
+If you have plan to implement vzAny inside multi-site design, please check all details on link below:
+<a href="https://www.cisco.com/c/en/us/td/docs/dcn/ndo/4x/configuration/cisco-nexus-dashboard-orchestrator-configuration-guide-aci-421/ndo-configuration-aci-use-case-vzany-pbr-42x.html" target="_blank">Cisco Nexus Dashboard Orchestrator Configuration Guide for ACI Fabrics</a>.</li>
+</ul>
+
+<p><strong><span style="color:#074080">8. Main Routing improvements.ulti-Site support for vzAny PBR and L3Out-to-L3Out PBR use cases.</span></strong></p>
+
+<ul>
+  <li>BGP AS - Remove private AS from AS_PATH.</li>
+  <li>Support for BFD on Secondary subnet IPv4/IPv6.</li>
+  <li>BGP Additional Paths - Receive multiple paths for the same prefix without the new paths replacing any previous paths.</li>
+</ul>
+
+<p><strong><span style="color:#074080">9. Operating and Administering improvements.</span></strong></p>
+
+<p>ACI ver.6.0(1)F</p>
+<ul>
+  <li>Simplifying interface configuration.</li>
+  <li>Secure Erase (RMA).</li>
+</ul>
+
+<p>ACI ver.6.0(2)F</p>
+<ul>
+  <li>Auto firmware update for Cisco APIC on discovery - APIC will be automatically upgrade on version same as fabric.</li>
+  <li>Installing switch SMU without reload.</li>
+  <li>Troubleshooting of QoS Polices.</li>
+</ul>
+
+<p>ACI ver.6.0(3)F</p>
+<ul>
+  <li>Reduce of time of APIC upgrade.</li>
+  <li>Transaction-based Logging.</li>
+  <li>Memory-based Automatic Switch Image Selection 32/64 bit.</li>
+</ul>
+
+<p>ACI ver.6.0(4)F</p>
+<ul>
+  <li>Streamlined navigation and editing of the stat collection threshold from a TCA fault.</li>
+</ul>
+
+<p><strong><span style="color:#074080">10. Main Security improvements</span></strong></p>
+
+<ul>
+  <li>Cisco Nexus 9K switch secure erase.</li>
+  <li>Support for a user group map rule for SAML and OAuth2.</li>
+  <li>Support for TLS ver 1.3</li>
+  <li>First hop security FHS support for VMM.</li>
+  <li>TACACS external logging for switches.</li>
+  <li>RSA Key 307 and 4096 support on X.509 certificates.</li>
+</ul>
+
+<p><strong><span style="color:#074080">11. Integrations.</span></strong></p>
+
+<ul>
+  <li>Enhanced LLDP TLVs for Azure Stack HCI.</li>
+  <li>Policy mode for Cisco ACI and VMware NSX-T integration.</li>
+  <li>VMM Domain support for VMware vSphere 8.0.</li>
+</ul>
+
+<p><strong><span style="color:#074080">12. Scale improvements.</span></strong></p>
+
+<p align="center">
+<img src="/images/aci_6_new_features/3.png" alt="ACI 60" title="ACI 60" /> 
+</p>
+
+<p align="center">
+<img src="/images/aci_6_new_features/4.png" alt="ACI 60" title="ACI 60" /> 
+</p>
+
+<p align="center">
+<img src="/images/aci_6_new_features/5.png" alt="ACI 60" title="ACI 60" /> 
+</p>
+
+<p>References: <br />
+<a href="https://www.cisco.com/c/en/us/td/docs/dcn/aci/apic/6x/release-notes/cisco-apic-release-notes-611.html" target="_blank">Cisco Application Policy Infrastructure Controller</a> <br />
+<a href="https://www.cisco.com/c/en/us/td/docs/dcn/aci/apic/all/cisco-aci-releases-changes-in-behavior.html" target="_blank">Cisco ACI Releases Changes in Behavior</a></p>
+
+  </div><a class="u-url" href="/aci/aci-6-new-features/" hidden></a>
+  <div class="post-categories">
+    
+    <h5>categories: 
+    <a href="/categories/#ACI">ACI</a>
+    
+    
+  </h5>
+  </div>
+
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>RSS Feed</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</p>
+      </div>
+<!-- below were social media buttons -->
+
+  </div>
+
+</footer>
+</body>
+
+</html>
