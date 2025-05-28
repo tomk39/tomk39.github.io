@@ -1,5 +1,176 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-04-06T07:42:53+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
-</subtitle><entry><title type="html">Designing with Cisco ACI</title><link href="http://0.0.0.0:4000/aci/designing-with-aci/" rel="alternate" type="text/html" title="Designing with Cisco ACI" /><published>2025-03-30T00:00:00+00:00</published><updated>2025-03-30T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/designing-with-aci</id><content type="html" xml:base="http://0.0.0.0:4000/aci/designing-with-aci/"><![CDATA[<p align="center">
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-05-28T17:16:48+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</subtitle><entry><title type="html">Understanding Cisco ACI Access Policies: A Practical Guide</title><link href="http://0.0.0.0:4000/aci/aci-access-polices/" rel="alternate" type="text/html" title="Understanding Cisco ACI Access Policies: A Practical Guide" /><published>2025-05-15T00:00:00+00:00</published><updated>2025-05-15T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-access-polices</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-access-polices/"><![CDATA[<p align="center">
+<img src="/images/aci_access_polices/1.gif" alt="ACI-top" title="ACI-top" /> 
+</p>
+
+<p>Understanding Cisco ACI Access Policies doesn’t have to be complicated. This practical guide simplifies the core concepts and clearly shows you what you need to know.
+<!-- excerpt --></p>
+
+<p>
+Secure and controlled access is fundamental to any network. This guide walks you through both the essentials and more advanced topics of Cisco ACI Access Policies, demonstrating how to apply them effectively in your environment and designs.
+</p>
+
+<p><strong><a href="#section1">1. The End-to-End Workflow for Cisco ACI Access Policy Deployment.</a></strong>  <br />
+<strong><a href="#section2">1.1. Interface Policies Configuration Workflow.</a></strong><br />
+<strong><a href="#section3">1.2. Leaf Switches Policies Configuration Workflow.</a></strong><br />
+<strong><a href="#section4">2. Leaf Access Port configuration.</a></strong><br />
+<strong><a href="#section5">3. Leaf Port Channel (PC) configuration.</a></strong><br />
+<strong><a href="#section6">4. Leaf Virtual Port Channel (vPC) configuration.</a></strong></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section1">1. The End-to-End Workflow for Cisco ACI Access Policy Deployment.</span></strong></p>
+
+<p>Cisco Application Centric Infrastructure (ACI) redefines network management with its policy-driven automation, moving away from traditional device-by-device configurations. At the heart of this transformative approach lies Access Policies, which dictate how physical network devices connect to the ACI fabric and how virtual and physical workloads access network services.</p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section2">1.1. Interface Policies Configuration Workflow.</span></strong></p>
+
+<ul>
+  <li>
+    <p><strong>VLAN Pools</strong> A VLAN Pool defines a range (or multiple ranges) of VLAN IDs that are permitted for use on leaf switch ports for EPG encapsulation. It doesn’t provision the VLANs themselves but rather reserves them for use.</p>
+  </li>
+  <li><strong>Domains and Domain Types</strong> Purpose: Domains act as a bridge, linking VLAN Pools with policies and the infrastructure. They define the scope where a particular VLAN pool can be utilized and by what type of entity.
+    <ol>
+      <li>
+        <p>Physical Domains integrate bare-metal servers, physical appliances (e.g., firewalls, load balancers, non-virtualized servers), or other physical devices directly connected to ACI leaf ports.</p>
+      </li>
+      <li>
+        <p>Fibre Channel Domains are primarily used for integrating Fibre Channel over Ethernet (FCoE) storage networks with the ACI fabric. This allows the ACI fabric to act as a converged network that carries both IP and FCoE traffic.</p>
+      </li>
+      <li>
+        <p>External L3 Domains connect the ACI fabric to external Layer 3 (routed) networks or traditional routers outside the ACI fabric (Used by L3OUT).</p>
+      </li>
+      <li>
+        <p>External Bridge Domains connect the ACI fabric to external Layer 2 (bridged) networks or switches outside the ACI fabric. This is used when you need to extend Layer 2 segments from the ACI fabric to external devices without routing (Used by L2OUT).</p>
+      </li>
+    </ol>
+  </li>
+  <li><strong>Attachable Access Entity Profile (AAEP)</strong> The AAEP effectively defines which VLANs are allowed on an interface or group of interfaces. It does this by referencing Domains, which in turn reference VLAN Pools. If we compare with old fashion switch configuration it should be
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> switchport trunk allowed vlan
+</code></pre></div>    </div>
+    <p><strong>Common Scenarios for AAEP Scope/Design:</strong></p>
+    <ol>
+      <li>
+        <p>One-to-one with Domains: Often, you’ll create an AAEP for each type of domain (Physical AAEP,   1.VMM AAEP, L3Out AAEP, L2Out AAEP, FCoE AAEP) to clearly separate their respective VLAN pools and interface associations.</p>
+      </li>
+      <li>
+        <p>Functional Grouping: You might create AAEPs based on functional groups of ports, e.g., “ServerFarm_AAEP” that encompasses all necessary domains (physical and VMM) and VLANs for server connectivity.</p>
+      </li>
+    </ol>
+  </li>
+  <li><strong>Interface Policy Group (IPG)</strong> acts as a collection point for individual “interface policies.” These individual policies define specific Layer 1 or Layer 2 parameters for a port.</li>
+</ul>
+
+<p><strong>Key Interface Policy Group Policies are:</strong></p>
+<ul>
+  <li>Link Level Policy (speed, duplex, auto-negotiation).</li>
+  <li>CDP (Cisco Discovery Protocol) Policy (enable/disable).</li>
+  <li>LLDP (Link Layer Discovery Protocol) Policy (enable/disable).</li>
+  <li>LACP Policy (for Port Channels: active, passive, on, port priority).</li>
+  <li>Storm Control Policy control Broadcast, Unknown Unicast, and Multicast (BUM).</li>
+  <li>MCP (Mis-Cabling Protocol) Policy.</li>
+  <li>Spanning Tree related policies (BPDU Guard/Filter).</li>
+  <li>
+    <p>L2 Interface Polices (VLAN scope Global or Port Local).</p>
+  </li>
+  <li><strong>Interface Profile</strong></li>
+</ul>
+
+<p align="center">
+<img src="/images/aci_access_polices/2-1.png" alt="ACI-AccessPolice" title="ACI-AccessPolice" /> 
+</p>
+<p>Figure 1. Representing Interface Policies Configuration Flow.</p>
+
+<p><a href="/images/aci_access_polices/2-11.png" target="new" title="click here to see the full sized image"><img src="/images/aci_access_polices/2-11.png" alt="IntProPolices" /></a></p>
+
+<p>Figure 2. Interface Policy Configuration within the Cisco APIC UI.</p>
+
+<p><a href="/images/aci_access_polices/2-13.png" target="new" title="click here to see the full sized image"><img src="/images/aci_access_polices/2-13.png" alt="IntProPolices" /></a></p>
+
+<p>Figure 2.1. Interface Policy Configuration within the Cisco APIC UI.</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section3">1.2. Leaf Switches Policies Configuration Workflow.</span></strong></p>
+
+<ul>
+  <li><strong>Leaf Switches Policy Groups</strong> they control the behavior of the entire leaf switch. This allows for consistent application of switch-level configurations to multiple leaf nodes selected by a Leaf Switch Profile.</li>
+</ul>
+
+<p><strong>Key Leaf Switches Policy Groups are:</strong></p>
+<ul>
+  <li>Spanning Tree</li>
+  <li>Monitoring polices</li>
+  <li>CoPP Leaf Policy</li>
+  <li>NetFlow Node Policy</li>
+  <li>BFD IPv4 and IPv6 Policy</li>
+</ul>
+
+<p align="center">  
+<img src="/images/aci_access_polices/2-2.png" alt="ACI-AccessPolice" title="ACI-AccessPolice" /> 
+</p>
+<p>Figure 3. Representing Leaf Switch Policies Configuration Flow.</p>
+
+<p><a href="/images/aci_access_polices/2-21.png" target="new" title="click here to see the full sized image"><img src="/images/aci_access_polices/2-21.png" alt="LeafSWIntPro" /></a></p>
+
+<p>Figure 4. Leaf Switch Policies Configuration within the Cisco APIC UI.</p>
+
+<p align="center">
+<img src="/images/aci_access_polices/2.png" alt="ACI-AccessPolice" title="ACI-AccessPolice" /> 
+</p>
+
+<p>Figure 5. Full configuration flow for interface and leaf switch polices.</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section4">2. Leaf Access Port configuration.</span></strong></p>
+
+<p><a href="/images/aci_access_polices/3-1.png" target="new" title="click here to see the full sized image"><img src="/images/aci_access_polices/3-1.png" alt="AccessPort" /></a></p>
+
+<p>Figure 6. Implementation of an Interface Policy Group within the Cisco APIC user interface (UI).</p>
+
+<p>After creating the Leaf Interface profile and attaching it to the Leaf Switch profile, we add specific ports under the Leaf Interface profile and select the appropriate Interface Policy Group. This approach provides reusability and simplifies automation. For Particular case we created Leaf Access Port Policy Group like below and attached to port eth1/1 inside specific Leaf Interface Profile.</p>
+
+<p><a href="/images/aci_access_polices/3-2.png" target="new" title="click here to see the full sized image"><img src="/images/aci_access_polices/3-2.png" alt="AccessPort" /></a></p>
+
+<p>Figure 7. Representing creation of Access port policy group and attaching to specific Leaf Interface profile.</p>
+
+<p align="center">
+<img src="/images/aci_access_polices/3.png" alt="ACI-AccessPolice" title="ACI-AccessPolice" /> 
+</p>
+
+<p>Figure 8. End to end workflow to setup access port up and running on leaf switch.</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section5">3. Leaf Port Channel (PC) configuration.</span></strong></p>
+
+<p>The foundational workflow for configuring a Port Channel in Cisco ACI closely mirrors that of a standard Access Port; however, a key distinction lies in the explicit inclusion and application of an LACP Policy within the associated Interface Policy Group, which is then specifically leveraged for the two designated physical ports on a single leaf switch to form the logical Port Channel.</p>
+
+<p><a href="/images/aci_access_polices/4-1.png" target="new" title="click here to see the full sized image"><img src="/images/aci_access_polices/4-1.png" alt="PC" /></a></p>
+
+<p>Figure 9. Representing creation of Port Channel policy group.</p>
+
+<p align="center">
+<img src="/images/aci_access_polices/4.png" alt="ACI-AccessPolice" title="ACI-AccessPolice" /> 
+</p>
+
+<p>Figure 10. End to end workflow to setup Port Channel (PC) up and running on leaf switch.</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section6">4. Leaf Virtual Port Channel (vPC) configuration.</span></strong></p>
+
+<p>Virtual Port Channel (vPC) significantly enhances network resilience and operational uptime by logically combining two physical ports, each residing on a separate Cisco Nexus leaf switch, into a single, aggregated link. This innovative design provides superior high availability, as it creates active-active forwarding paths, ensuring that traffic can seamlessly continue to flow even if one of the leaf switches or an individual link experiences a failure.</p>
+
+<p><a href="/images/aci_access_polices/6-1.png" target="new" title="click here to see the full sized image"><img src="/images/aci_access_polices/6-1.png" alt="VPCDom" /></a></p>
+
+<p>Figure 11. Representing creation of Virtual Port Channel (vPC) policy group.</p>
+
+<p align="center">
+<img src="/images/aci_access_polices/5.png" alt="ACI-AccessPolice" title="ACI-AccessPolice" /> 
+</p>
+<p>Figure 12.End to end workflow to setup Virtual Port Channel (vPC) up and running on leaf switches.</p>
+
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[Understanding Cisco ACI Access Policies doesn’t have to be complicated. This practical guide simplifies the core concepts and clearly shows you what you need to know.]]></summary></entry><entry><title type="html">Designing with Cisco ACI</title><link href="http://0.0.0.0:4000/aci/designing-with-aci/" rel="alternate" type="text/html" title="Designing with Cisco ACI" /><published>2025-03-30T00:00:00+00:00</published><updated>2025-03-30T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/designing-with-aci</id><content type="html" xml:base="http://0.0.0.0:4000/aci/designing-with-aci/"><![CDATA[<p align="center">
 <img src="/images/designing_with_aci/1.gif" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -1558,164 +1729,4 @@ net add vxlan vni-101 stp portbpdufilter
 <strong><a href="/vxlan/static_vxlan_part1/index.html" target="_blank">Part 1 Static VxLAN between Ubuntu hosts</a></strong><br />
 <strong><a href="/vxlan/static-vxlan-part3/index.html" target="_blank">Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway</a></strong><br />
 <strong><a href="/vxlan/static-vxlan-part4/index.html" target="_blank">Part 4 Static VxLAN Data Center Interconnect</a></strong><br />
-<br /></p>]]></content><author><name></name></author><category term="VxLAN" /><summary type="html"><![CDATA[In Part 2 will be covered the case when we have physical DB server connected to network via L2/L3 switch and it should communicate with application running inside virtual machine. Nvidia Cumulus VX virtual switch will play the role of L2/L3 switch. On Cumulus virtual switch VxLAN tunnel be terminated from remote server.]]></summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 1</title><link href="http://0.0.0.0:4000/vxlan/static_vxlan_part1/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 1" /><published>2021-10-01T00:00:00+00:00</published><updated>2021-10-01T00:00:00+00:00</updated><id>http://0.0.0.0:4000/vxlan/static_vxlan_part1</id><content type="html" xml:base="http://0.0.0.0:4000/vxlan/static_vxlan_part1/"><![CDATA[<p align="center">
-<img src="/images/static_vxlan/vxlan_tunnel.jpg" alt="VxLAN Overlay Ubuntu Intro" title="Introduction to VxLAN" /> 
-</p>
-<p>In this blog post I will cover static VxLAN tunnels, it means no multicast flood and learning or BGP with EVPN signalling.
-Part 1 will cover “Static VxLAN tunnels between two Linux hosts” and you could have guessed already that there will be Part 2 and Part 3, or even more, who knows.
-Future subjects of blog posts will be kept secret for now.😉</p>
-
-<h3 id="introduction-to-vxlan---virtual-extensible-lan"><span style="color:#074080">Introduction to VxLAN - Virtual Extensible LAN</span></h3>
-<p style="text-align: justify;">
-I will try not to bother you with heaps of theory that you can find in the books or on the Internet. However I will mention some important facts about VxLAN.
-So, What is VxLAN? It is just yet another encapsulation, which allows you transporting L2 frames over L3 network and that way extending L2 domain. Moreover, it provides flexibility and scalability and solve limitations of 4096 vlans. Also it introduces overhead of 16 bytes (UDP 8 bytes + VxLAN header 8 Bytes). So because of that the underlay network should support MTU size 1600 bytes, not less.
-VxLAN adds header to original L2 frame and encapsulates all to UDP and transport via underlay IP network.
-VTEPs (VxLAN Tunnel Endpoint) are the points on network (server) nodes where traffic will be packed to encapsulation and on remote point unpack and send to final destination. 
-</p>
-<p>Below you can see L2 frame before and after encapsulation to VxLAN.</p>
-<p align="center">
-  <img src="/images/static_vxlan/vxlan.jpg" alt="L2 frame, VxLAN" title="L2 Frame inside VxLAN" />
-</p>
-
-<p>It’s time to stop talking and start lab configuration.</p>
-
-<h3 id="part-1-static-vxlan-between-two-linux-hosts"><span style="color:#074080">Part 1 Static VxLAN between two Linux hosts</span></h3>
-<p>In Part 1 I will cover the case when we have two physical servers and the requirement is to connect virtual machines to one subnet.
-For the sake of simplicity, physical servers will be deployed as virtual machines on baremetal KVM host and they will represented as “srv” and “srv1”. Nested VMs will be simulated with Linux network namespaces. This way we can save hardware resources on KVM host. Details on how everything is interconnected you can find below on the network diagram.</p>
-
-<p align="center">
-  <img src="/images/static_vxlan/net_diag.jpg" alt="VxLAN, VTEP, Overlay Network" title="Network diagram VxLAN between Ubuntu KVM hosts" />
-</p>
-
-<p><strong>Prerequisites for servers (virtual machines):</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: left">VM name</th>
-      <th style="text-align: left">OS Version</th>
-      <th style="text-align: left">Extra installed SW</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">srv</td>
-      <td style="text-align: left">Ubuntu 20.04</td>
-      <td style="text-align: left">bridge-utils</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">srv1</td>
-      <td style="text-align: left">Ubuntu 20.04</td>
-      <td style="text-align: left">bridge-utils</td>
-    </tr>
-  </tbody>
-</table>
-
-<p><strong><span style="color:#074080">Step 1. Run VMs and install bridge-utils</span></strong></p>
-
-<p>Let’s assume that virtual machines “srv” and “srv1” are successfully deployed on KVM host and bridge-utils were installed on both VMs using the command below:</p>
-
-<p><code>apt install bridge-utils</code></p>
-
-<p>version of bridge-utils we can check from CLI from srv and srv1 with the following command:</p>
-
-<p><code>apt list | grep bridge-utils</code></p>
-
-<p>output should be</p>
-
-<p><strong><code>bridge-utils/focal,now 1.6-2ubuntu1 amd64 [installed]</code></strong></p>
-
-<p>version can vary.</p>
-
-<p><strong><span style="color:#074080">Step 2. Create and configure namespaces, bridges and veth interfaces pairs </span></strong></p>
-
-<p>Creation of namespaces.</p>
-
-<p><u>Apply configuration on srv.</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns add vm3 
-</code></pre></div></div>
-<p><u>Apply configuration on srv1.</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns add vm1
-</code></pre></div></div>
-
-<p>Creation of bridges on both host VMs.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add br-vxlan type bridge
-ip link set br-vxlan up
-ip link set mtu 9000 dev br-vxlan
-</code></pre></div></div>
-<p>Disable spanning-tree on the bridges</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>brctl stp br-vxlan off
-</code></pre></div></div>
-<p>Creation of veth interfaces on both host VMs.</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add veth0 type veth peer veth1
-ip link set up veth0
-ip link set veth0 master br-vxlan
-</code></pre></div></div>
-<p><u>Apply configuration on srv.</u><br />
-Adding IP address on veth1 and bring interface up</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns exec vm3 ip a a 192.168.22.1/24 dev veth1
-ip netns exec vm3 ip link set up veth1
-</code></pre></div></div>
-<p><u>Apply configuration on srv1.</u><br />
-Adding IP address on veth1 and bring interface up.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns exec vm1 ip a a 192.168.22.2/24 dev veth1
-ip netns exec vm1 ip link set up veth1
-</code></pre></div></div>
-
-<p><strong><span style="color:#074080">Step 3. Configuration of  VxLAN Tunnel</span></strong></p>
-
-<p><u>Creation of VxLAN tunnel interface vx0 on srv and srv1.</u></p>
-
-<p>Create VxLAN tunnel interface with VNI 100.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add vx0 type vxlan id 100 local 192.168.100.20 remote 192.168.100.21 dev ens0 dstport 4789
-</code></pre></div></div>
-<p>Add IP address on tunnel and bring up interface.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip a a 192.168.1.1/24 dev vx0
-ip link set vx0 up
-</code></pre></div></div>
-<p>Add VxLAN tunnel interface to specific bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx0 master br-vxlan
-</code></pre></div></div>
-<p><u>Apply configuration on srv1.</u></p>
-
-<p>Create VxLAN tunnel interface with VNI 100.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add vx0 type vxlan id 100 local 192.168.100.21 remote 192.168.100.20 dev ens0 dstport 4789
-</code></pre></div></div>
-<p>Add IP address on tunnel and bring up interface.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip a a 192.168.1.2/24 dev vx0
-ip link set vx0 up
-</code></pre></div></div>
-<p>Add VxLAN tunnel interface to specific bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx0 master br-vxlan
-</code></pre></div></div>
-
-<p><strong><span style="color:#074080">Step 4. Add static MAC record to forwarding database</span></strong></p>
-
-<p><u>Apply configuration on srv.</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bridge fdb append 00:00:00:00:00:00 dev vx0 dst 192.168.100.21
-</code></pre></div></div>
-
-<p><u>Apply configuration on srv1.</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bridge fdb append 00:00:00:00:00:00 dev vx0 dst 192.168.100.20
-</code></pre></div></div>
-
-<p><strong><span style="color:#074080">Step 5. Connectivity check </span></strong></p>
-
-<p>Run PING command from both VMs (namespaces).
-<img style="center" src="/images/static_vxlan/vm1_ping_vm3.jpg" alt="Ping from namespace" title="Connectivity check with PING command" /></p>
-
-<p><u>Issue ping from VM3 (namespace)</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm3 ping 192.168.22.2 -- &gt; remote IP inside namespace VM1
-</code></pre></div></div>
-<p><u>Issue ping from VM1 (namespace)</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm1 ping 192.168.22.1 -- &gt; remote IP inside namespace VM3
-</code></pre></div></div>
-<p>Below is capture which is prove that all ICMP packets (request, reply) were encapsulated to VxLAN.
-<img style="float" width="750" height="400" src="/images/static_vxlan/vm3_ping_vm1_pcap.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
-
-<p><br />
-<strong><a href="/vxlan/static-vxlan-part2/index.html" target="_blank">Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth</a></strong><br />
-<strong><a href="/vxlan/static-vxlan-part3/index.html" target="_blank">Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway</a></strong><br />
-<strong><a href="/vxlan/static-vxlan-part4/index.html" target="_blank">Part 4 Static VxLAN Data Center Interconnect</a></strong><br />
-<br /></p>]]></content><author><name></name></author><category term="VxLAN" /><summary type="html"><![CDATA[In this blog post I will cover static VxLAN tunnels, it means no multicast flood and learning or BGP with EVPN signalling. Part 1 will cover “Static VxLAN tunnels between two Linux hosts” and you could have guessed already that there will be Part 2 and Part 3, or even more, who knows. Future subjects of blog posts will be kept secret for now.😉]]></summary></entry></feed>
+<br /></p>]]></content><author><name></name></author><category term="VxLAN" /><summary type="html"><![CDATA[In Part 2 will be covered the case when we have physical DB server connected to network via L2/L3 switch and it should communicate with application running inside virtual machine. Nvidia Cumulus VX virtual switch will play the role of L2/L3 switch. On Cumulus virtual switch VxLAN tunnel be terminated from remote server.]]></summary></entry></feed>
