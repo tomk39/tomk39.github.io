@@ -1,5 +1,198 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-05-28T17:50:06+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
-</subtitle><entry><title type="html">Understanding Cisco ACI Access Policies: A Practical Guide</title><link href="http://0.0.0.0:4000/aci/aci-access-polices/" rel="alternate" type="text/html" title="Understanding Cisco ACI Access Policies: A Practical Guide" /><published>2025-05-28T00:00:00+00:00</published><updated>2025-05-28T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-access-polices</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-access-polices/"><![CDATA[<p align="center">
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-06-16T17:24:58+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</subtitle><entry><title type="html">Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained</title><link href="http://0.0.0.0:4000/aci/aci-core-build/" rel="alternate" type="text/html" title="Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained" /><published>2025-06-16T00:00:00+00:00</published><updated>2025-06-16T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-core-build</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-core-build/"><![CDATA[<p align="center">
+<img src="/images/aci_building_blocks/1.png" alt="ACI-top" title="ACI-top" /> 
+</p>
+
+<p>In the world of modern data centers, Cisco Application Centric Infrastructure (ACI) stands out as a powerful solution for network automation, policy enforcement, and application agility.
+<!-- excerpt --></p>
+
+<p>
+This post will demystify the core building blocks of Cisco ACI, guiding you through the concepts of Tenants, VRFs (Virtual Routing and Forwarding), Bridge Domains, Application Profiles, and Endpoint Groups (EPGs). By the end of this explanation, you'll have a clear understanding of how these elements work together to form a robust and flexible network fabric, enabling you to design and implement ACI solutions with confidence. Let's dive in!
+</p>
+
+<p><a href="/images/aci_building_blocks/2-0.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/2-0.png" alt="ACI-Tenant" /></a></p>
+
+<p>Figure 1. Workflow of Tenant to EPG deployment.</p>
+
+<p><strong><a href="#section1">1. Understanding the Tenant: The Administrative Boundary.</a></strong>  <br />
+<strong><a href="#section2">2. VRF (Virtual Routing and Forwarding): The Layer 3 Isolation Domain.</a></strong><br />
+<strong><a href="#section3">3. Bridge Domain (BD): The Layer 2 Forwarding Domain.</a></strong><br />
+<strong><a href="#section4">3.1. Subnet Configuration within a Bridge Domain: Defining IP Address Space &amp; Reachability.</a></strong><br />
+<strong><a href="#section5">4. Application Profile (AP): The Application Logical Container.</a></strong><br />
+<strong><a href="#section6">5. EPG (Endpoint Group): The Granular Policy Enforcement Point.</a></strong><br />
+<strong><a href="#section7">6. Endpoint Security Groups (ESGs): Decoupling Security from Forwarding</a></strong></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section1">1. Understanding the Tenant: The Administrative Boundary.</span></strong></p>
+
+<p>In the ACI object model, the Tenant (fvTenant) is the root of a policy tree for a given set of configurations. All subsequent networking objects (VRF, BD, EPG, etc.) are children of a Tenant.</p>
+
+<p><strong>Default Tenants:</strong> When you initialize an ACI fabric, three default tenants are automatically created:</p>
+
+<p><strong>common:</strong> This tenant is for shared resources that can be accessed by all other tenants. Common uses include shared Layer 3 Out (L3Out) connections to external networks, common services like DNS or DHCP, and shared Layer 4-7 services (e.g., firewalls, load balancers). Objects in the common tenant can be consumed by other tenants via contracts.</p>
+
+<p><strong>infra (Infrastructure):</strong> This tenant is used for internal ACI fabric communications. It contains policies related to fabric discovery, image management, VXLAN overlay, and other underlying infrastructure functions. It’s generally not directly configured by users unless specifically instructed by Cisco for advanced scenarios like Multi-Pod or Multi-Site deployments.</p>
+
+<p><strong>mgmt (Management):</strong> This tenant is dedicated to managing the ACI fabric itself. It defines policies for in-band and out-of-band management access to the APIC controllers and fabric switches. No Direct Network Construct: A Tenant itself doesn’t map directly to a traditional network construct like a VLAN, VRF, or physical interface.</p>
+
+<p><strong>Globally Unique Names:</strong> Tenant names must be globally unique across the ACI fabric.</p>
+
+<p><a href="/images/aci_building_blocks/2.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/2.png" alt="ACI-Tenant" /></a></p>
+
+<p>Figure 2. Tenant deployment workflow.</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section2">2. VRF (Virtual Routing and Forwarding): The Layer 3 Isolation Domain.</span></strong></p>
+
+<p>Layer 3 Isolation: The fundamental purpose of a VRF in ACI, just like in traditional networking, is to provide Layer 3 isolation. Each VRF has its own independent routing table, IP address space, and set of routing protocols. This means that traffic within one VRF cannot directly communicate with traffic in another VRF unless explicitly configured to do so (e.g., via a firewall or inter-VRF routing policies).</p>
+
+<p><strong>Routing Instance:</strong> A VRF is essentially a virtual routing instance. It holds the routing information (routes, ARP/ND entries) for the subnets and endpoints associated with it.</p>
+
+<p><strong>Tenant Scoped:</strong> A VRF is always contained within a Tenant. It’s a child object of a Tenant (fvCtx in the ACI object model). This means that a VRF belongs to a specific administrative domain and its policies are managed under that tenant.</p>
+
+<p><strong>Policy Control Enforcement Preference:</strong></p>
+
+<ul>
+  <li>“Enforced” (Default and Recommended): This means that all communication between EPGs within this VRF (or between an EPG in this VRF and an external network) requires a Contract.</li>
+  <li>“Unenforced”: This setting implies that all EPGs within this VRF can communicate freely with each other by default, without the need for explicit Contracts. While it simplifies initial setup, it bypasses ACI’s micro-segmentation capabilities and is generally discouraged for production environments where granular security is a requirement.</li>
+</ul>
+
+<p><strong>Preferred Group:</strong> setting, enabled at the VRF level, allows all EPGs within that VRF to communicate with each other by default if they are part of the preferred group.</p>
+
+<p><a href="/images/aci_building_blocks/3.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/3.png" alt="ACI-VRF" /></a></p>
+
+<p>Figure 3. VRF deployment workflow</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section3">3. Bridge Domain (BD): The Layer 2 Forwarding Domain.</span></strong></p>
+
+<p>In Cisco ACI, a Bridge Domain (BD) is a critical logical construct that represents a Layer 2 forwarding domain. It’s the ACI equivalent of a traditional VLAN or broadcast domain, but with significantly enhanced capabilities and policy integration.</p>
+
+<p><a href="/images/aci_building_blocks/4.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/4.png" alt="ACI-BD" /></a></p>
+
+<p>Figure 4. First step in Bridge Domain deployment.</p>
+
+<p><a href="/images/aci_building_blocks/4-1.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/4-1.png" alt="ACI-BD" /></a></p>
+
+<p>Figure 5. Second step in Bridge Domain deployment.</p>
+
+<p><a href="/images/aci_building_blocks/4-2.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/4-2.png" alt="ACI-BD" /></a></p>
+
+<p>Figure 6. Third step in Bridge Domain deployment.</p>
+
+<p><a href="/images/aci_building_blocks/4-3.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/4-3.png" alt="ACI-BD" /></a></p>
+
+<p>Figure 7. Bridge Domain L2 features.</p>
+
+<p><strong>Advertise Host Routes:</strong> By advertising a precise /32 (or /128) route for each individual endpoint, external routers learn the exact leaf switch (and pod/site) where the endpoint resides. This directs traffic directly to the optimal entry point into the ACI fabric.</p>
+
+<p><strong>L2 Unknown Unicast Handling:</strong> This setting defines how the ACI fabric handles unknown unicast traffic within the Bridge Domain:</p>
+<ul>
+  <li>
+    <p>Hardware Proxy (Default and Recommended): This is the most efficient and scalable method. When a leaf switch receives an unknown unicast frame, it doesn’t flood it everywhere. Instead, it sends the frame to a spine proxy. The spine acts as a central lookup point, and if it knows the destination MAC, it forwards the frame directly to the correct leaf. If the MAC is unknown to the spine, only then does the spine flood it to relevant leaves. This significantly reduces flood domains.</p>
+  </li>
+  <li>
+    <p>Flood: This behaves like traditional Ethernet. Unknown unicast frames are flooded to all leaf switches that have an endpoint associated with this Bridge Domain. This can be inefficient and generate unnecessary traffic, especially in large environments.</p>
+  </li>
+</ul>
+
+<p><strong>Optimize ARP Flooding:</strong> This option, when enabled, means that the ACI fabric will proxy ARP requests for known MAC addresses instead of flooding them. This reduces broadcast traffic.</p>
+
+<p><strong>Limit local IP learning to BD/EPG subnets:</strong> Restrict IP Learning: The ACI leaf switches connected to this Bridge Domain will only learn IP addresses for endpoints that fall within the explicitly defined IP subnets configured under that particular Bridge Domain, or the subnets defined within the EPGs that reside within that BD. It will ignore Out-of-Subnet IPs.</p>
+
+<p><a href="/images/aci_building_blocks/4-4.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/4-4.png" alt="ACI-BD" /></a></p>
+
+<p>Figure 8. Bridge Domain L3 features.</p>
+
+<p><strong>IP Unicast Routing (Enabled/Disabled):</strong></p>
+<ul>
+  <li>If enabled, the ACI fabric will provide a distributed default gateway (Anycast Gateway) for any IP subnets defined within this Bridge Domain. This means the Layer 3 routing for endpoints in this BD is handled directly by the ACI leaf switches. This is the typical configuration for routed networks.</li>
+  <li>If disabled, the ACI fabric will not provide a default gateway for the subnets in this BD. This is often used for: Networks where an external router or firewall provides the default gateway. In such cases, the ACI fabric simply acts as a transparent Layer 2 forwarding plane.</li>
+</ul>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:16.0pt;" id="section4">3.1 Subnet Configuration within a Bridge Domain: Defining IP Address Space &amp; Reachability.</span></strong></p>
+
+<p>Each Bridge Domain can have one or more IP subnets associated with it. These subnets represent the IP address space for the endpoints connected to the Bridge Domain. Additionally, subnets can also be created directly under an EPG, but their purpose in that context is different: it facilitates Route Leaking and Shared Services between VRFs/Tenants with policy granularity.</p>
+
+<p><a href="/images/aci_building_blocks/4-6.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/4-6.png" alt="ACI-Sub" /></a></p>
+
+<p>Table 1. Comparing Subnets: Bridge Domain vs. EPG.</p>
+
+<p><a href="/images/aci_building_blocks/4-5.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/4-5.png" alt="ACI-Sub" /></a></p>
+
+<p>Figure 9. Subnet deployment within specific Bridge Domain.</p>
+
+<p><strong>Treat as Virtual IP address:</strong> Special handling for HA (Active/Standby) external device VIPs, ensuring proper learning and failover during HA events.</p>
+
+<p><strong>Make this IP address primary</strong> Designates a preferred source IP for the BD’s own control plane traffic when multiple subnets exist within this BD.</p>
+
+<p><strong>Advertised Externally:</strong> Advertises individual /32 (or /128) host routes for learned endpoints to external networks via L3Outs, optimizing traffic paths and VM mobility.</p>
+
+<p><strong>Shared Between VRFs:</strong> This option allows the subnet to be “leaked” and reachable by other VRFs within the same or different Tenants, usually in conjunction with Contracts for inter-VRF communication.</p>
+
+<p><strong>No Default SVI Gateway:</strong> Disables ACI’s pervasive gateway for this specific subnet (useful for secondary IPs or external gateways).</p>
+
+<p><strong>IP Data Plane Learning</strong> Enables dynamic learning of endpoint IP addresses by observing network traffic (typically enabled for general endpoints).</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section5">4. Application Profile (AP): The Application Logical Container.</span></strong></p>
+
+<p>In Cisco ACI, an Application Profile (AP) is a logical container that groups together all the Endpoint Groups (EPGs) and Contracts needed to deploy a specific application or service. It provides a higher-level abstraction for managing application-centric policies within the ACI fabric. The primary purpose of an Application Profile is to shift the focus from network-centric configuration to application-centric configuration. Instead of configuring network policies based on VLANs or subnets, you define policies based on the application components and their communication requirements.</p>
+
+<p><a href="/images/aci_building_blocks/5.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/5.png" alt="ACI-AppProf" /></a></p>
+
+<p>Figure 10. Deployment of Application profile.</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section6">5. EPG (Endpoint Group): The Granular Policy Enforcement Point.</span></strong></p>
+
+<p>An EPG is the smallest and most critical unit to which policy (Contracts) is applied. If two endpoints are in the same EPG, they can communicate by default (unless otherwise restricted by other policies like Preferred Group or micro-segmentation). If they are in different EPGs, communication between them is blocked by default, and a Contract is required to permit specific traffic flows. This is ACI’s core “whitelist” security model. EPGs support micro-segmentation through features like intra-EPG isolation, which prevents communication between endpoints within the same EPG if required.</p>
+
+<p><strong>Type Of EPGs:</strong></p>
+<ul>
+  <li>“Classic” EPG which is representing endpoints, they can be physical servers, virtual machines, network-attached storage devices, or even clients on the internet.</li>
+  <li>Layer 2 external outside network instance endpoint groups (l2extInstP).</li>
+  <li>Layer 3 external outside network instance endpoint groups (l3extInstP).</li>
+  <li>Management Endpoints groups (mgmtOoB, mgmtInB) are used for securing access to the ACI fabric’s management plane, either through a dedicated out-of-band management network or via in-band access within the fabric itself.</li>
+</ul>
+
+<p><a href="/images/aci_building_blocks/5.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/5.png" alt="ACI-EPG" /></a></p>
+
+<p>Figure 11. Deployment of EPG under application profile.</p>
+
+<p>To provision EPG on the port/switch we have to methods:</p>
+<ul>
+  <li><strong>Static Ports:</strong> Explicitly links an EPG to a specific physical interface.</li>
+  <li><strong>Static Leafs (via AAEP):</strong> Links an EPG to a logical group of interfaces defined by an AAEP, effectively pushing the EPG’s VLAN to all ports associated with that AAEP.</li>
+</ul>
+
+<p><a href="/images/aci_building_blocks/5-1.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/5-1.png" alt="ACI-EPG" /></a></p>
+
+<p>Figure 12. EPG to Leaf Port Static Assignment.</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section7">6. Endpoint Security Groups (ESGs): Decoupling Security from Forwarding</span></strong></p>
+
+<p>Decoupling Security from Forwarding: This is the core architectural shift and primary benefit of ESGs compared to EPGs. EPGs combine both forwarding (VLAN/VXLAN binding, BD association) and security, whereas ESGs aim to provide security policy based on attributes, independent of the underlying network forwarding.</p>
+
+<p><a href="/images/aci_building_blocks/6.png" target="new" title="click here to see the full sized image"><img src="/images/aci_building_blocks/6.png" alt="ACI-ESG" /></a></p>
+
+<p>Figure 13. Defining Endpoint Security Groups (ESGs) for Policy Decoupling.</p>
+
+<p>After defining your ESGs, you will create Contracts as usual.
+Associate the ESG as a Provider or Consumer of the contract, just like you would with EPGs.</p>
+
+<p><strong>Remember:</strong> Contracts typically apply ESG-to-ESG, ESG-to-L3Out External EPG, ESG-to-L2Out External EPG or ESG-to-vzAny.</p>
+
+<p>By using ESGs, ACI provides an additional layer of flexibility and powerful tools for defining and enforcing security policies, especially beneficial in complex and evolving data center environments.</p>
+
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[In the world of modern data centers, Cisco Application Centric Infrastructure (ACI) stands out as a powerful solution for network automation, policy enforcement, and application agility.]]></summary></entry><entry><title type="html">Understanding Cisco ACI Access Policies: A Practical Guide</title><link href="http://0.0.0.0:4000/aci/aci-access-polices/" rel="alternate" type="text/html" title="Understanding Cisco ACI Access Policies: A Practical Guide" /><published>2025-05-28T00:00:00+00:00</published><updated>2025-05-28T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-access-polices</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-access-polices/"><![CDATA[<p align="center">
 <img src="/images/aci_access_polices/1.gif" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -1535,198 +1728,4 @@ net add vxlan vni-102 vxlan remoteip 192.168.100.21
 <strong><a href="/vxlan/static_vxlan_part1/index.html" target="_blank">Part 1 Static VxLAN between Ubuntu hosts</a></strong><br />
 <strong><a href="/vxlan/static-vxlan-part2/index.html" target="_blank">Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth</a></strong><br />
 <strong><a href="/vxlan/static-vxlan-part4/index.html" target="_blank">Part 4 Static VxLAN Data Center Interconnect</a></strong><br />
-<br /></p>]]></content><author><name></name></author><category term="VxLAN" /><summary type="html"><![CDATA[In Part 3 I will cover the case when Cumulus VX virtual switch is playing the role of DC edge gateway as well as interconnect between underlay and overlay network. On Cumulus virtual switch two VxLAN tunnels will be terminated from remote servers.]]></summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 2</title><link href="http://0.0.0.0:4000/vxlan/static-vxlan-part2/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 2" /><published>2021-10-31T00:00:00+00:00</published><updated>2021-10-31T00:00:00+00:00</updated><id>http://0.0.0.0:4000/vxlan/static-vxlan-part2</id><content type="html" xml:base="http://0.0.0.0:4000/vxlan/static-vxlan-part2/"><![CDATA[<style>
-p1 {
-  font-size: 11px;
-}
-p2 {
-  font-size: 12px;
-}
-</style>
-
-<p align="center">
-<img src="/images/static_vxlan/vxlan_tunnel2.jpg" alt="Overlay VxLAN Cumulus Linux" title="VxLAN between Ubuntu and Cumulus VX" />  
-</p>
-<p style="text-align: justify;">
-In Part 2 will be covered the case when we have physical DB server connected to network via L2/L3 switch and it should communicate with application running inside virtual machine. Nvidia Cumulus VX virtual switch will play the role of L2/L3 switch. On Cumulus virtual switch VxLAN tunnel be terminated from remote server.
-</p>
-
-<p style="text-align: justify;">
-To download Nvidia Cumulus VX virtual switch first you need to register. The procedure is very friendly and corporate email address is not required. Nvidia didn't limit bandwidth or some features of virtual switch. Cumulus Linux VX (virtual switch) does not require any license, which is really great for labs, PoC and tests.
-<a href="https://www.nvidia.com/en-us/networking/ethernet-switching/cumulus-vx/download/" target="_blank">Click here to download Nvidia Cumulus VX virtual switch</a>
-DB server will be simulated with VPCS (Virtual PC Simulator). VPCS is actually application with few command line utilities such as ping, ip interface configuration etc. It can be run on Linux or Windows OS. Instructions on how to use and run VPCS you can find on the following link  <a href="https://wiki.freecode.com.cn/doku.php?id=wiki:vpcs" target="_blank">click here</a>.
-Like in Part 1, physical server with VMs will be deployed as virtual machine on baremetal KVM host and will be represented as "srv". Nested VM (application) will be simulated with Linux network namespace. Details on how everything is interconnected you can find below on the network diagram.
-</p>
-
-<p align="center">
-  <img src="/images/static_vxlan/net_diag2.jpg" alt="VxLAN, VTEP, Overlay Network" title="VxLAN Network diagram" /> 
-</p>
-
-<p><strong>Prerequisites for servers (virtual machines):</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: left">VM name</th>
-      <th style="text-align: left">OS Version</th>
-      <th style="text-align: left">Extra installed SW</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">srv</td>
-      <td style="text-align: left">Ubuntu 20.04</td>
-      <td style="text-align: left">bridge-utils</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">switch</td>
-      <td style="text-align: left">Cumulus Linux 4.4.1 VX (Nvidia)</td>
-      <td style="text-align: left"> </td>
-    </tr>
-  </tbody>
-</table>
-
-<p><strong><span style="color:#074080">Step 1. Run VMs and install bridge-utils</span></strong></p>
-
-<p>Let’s assume that virtual machine “srv” (Ubuntu), Cumulus VX vSwitch and VPCS are successfully deployed on KVM host.</p>
-
-<p>Bridge-utils were installed on Ubuntu virtual machine using the command below:</p>
-
-<p><code>apt install bridge-utils</code></p>
-
-<p>version of bridge-utils we can check from CLI from srv and srv1 with the following command:</p>
-
-<p><code>apt list | grep bridge-utils</code></p>
-
-<p>output should be</p>
-
-<p><strong><code>bridge-utils/focal,now 1.6-2ubuntu1 amd64 [installed]</code></strong></p>
-
-<p>version can vary.</p>
-
-<p><strong><span style="color:#074080">Step 2. Initial configuration of Linux srv and Nvidia Cumulus VX virtual switch</span></strong></p>
-
-<p><u>Apply configuration on srv</u></p>
-
-<p>Creation of namespaces.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns add vm3 
-</code></pre></div></div>
-<p>Creation of bridges on host srv.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add br-vxlan type bridge
-ip link set br-vxlan up
-ip link set mtu 9000 dev br-vxlan
-</code></pre></div></div>
-<p>Disable spanning-tree on the bridges</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>brctl stp br-vxlan off
-</code></pre></div></div>
-<p>Creation of veth interfaces on host srv.</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add veth0 type veth peer veth1
-ip link set up veth0
-ip link set veth0 master br-vxlan
-</code></pre></div></div>
-<p>Adding IP address on veth1 and bring interface up</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns exec vm3 ip a a 192.168.22.1/24 dev veth1
-ip netns exec vm3 ip link set up veth1
-</code></pre></div></div>
-<p><u>Configure Cumulus VX virtual switch.</u></p>
-
-<p>When you connect for the first time to Cumulus VX console it will request you to change default password.</p>
-
-<p><strong><p1><u>Default User and Password for Cumulus VX:</u></p1></strong></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>user: cumulus
-pass: cumulus
-</code></pre></div></div>
-<p align="left">
-  <img src="/images/static_vxlan/cumulus_login1.jpg" width="450" height="200 " alt="VxLAN, VTEP, Overlay Network" title="Cumulus ZTP" /> 
-</p>
-<p>When you log in for the first time on Cumulus VX virtual switch, you will need to stop ZTP - zero touch provisioning process. Please check below:</p>
-
-<p align="left">
-  <img src="/images/static_vxlan/cumulus_login2.jpg" width="450" height="150 " alt="VxLAN, VTEP, Overlay Network" title="Disable Cumulus ZTP" /> 
-</p>
-
-<p>Set hostname of Cumulus Linux virtual switch.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add hostname leaf1
-</code></pre></div></div>
-<p>Configure L3 interface for connection with underlay network.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp1 ip address 192.168.100.24/24
-</code></pre></div></div>
-<p>Configuration of Loopback interface, which will be used for VTEP termination point.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add loopback lo ip address 192.168.1.4/32
-</code></pre></div></div>
-<p>Add swp2 interface to VLAN 101.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp2 bridge access 101
-</code></pre></div></div>
-<p>Create bridge VLAN aware (Recommended by Cumulus network team).</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge bridge vlan-aware
-</code></pre></div></div>
-<p>Add port swp2 to bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge bridge ports swp2
-</code></pre></div></div>
-<p>Configure bridge VLAN id.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge bridge vids 101
-</code></pre></div></div>
-
-<p><strong><span style="color:#074080">Step 3. Configuration of  VxLAN Tunnel</span></strong></p>
-
-<p><u>Apply on srv.</u></p>
-
-<p>Create VxLAN tunnel interface with VNI 101.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add vx1 type vxlan id 101 local 192.168.100.20 remote 192.168.1.4 dev ens0 dstport 4789
-</code></pre></div></div>
-<p>Bring up tunnel interface.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx1 up
-</code></pre></div></div>
-<p>Add VxLAN tunnel interface to specific bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx1 master br-vxlan
-</code></pre></div></div>
-<p><u>Apply on Cumulus Linux virtual switch.</u></p>
-
-<p>Create VxLAN tunnel interface with VNI 101.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-101 vxlan id 101
-</code></pre></div></div>
-<p>Allow VLAN id 101 for vni-101 interface.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-101 bridge access 101
-</code></pre></div></div>
-<p>BPDU guard and port BPDU filter will be added automatically.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-101 stp bpduguard
-net add vxlan vni-101 stp portbpdufilter
-</code></pre></div></div>
-<p>Configure local VTEP, local Loopback0.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-101 vxlan local-tunnelip 192.168.1.4
-</code></pre></div></div>
-<p>Configure remote VTEP, IP address of remote server.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-101 vxlan remoteip 192.168.100.20
-</code></pre></div></div>
-<p>Add VxLAN interface to the bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge bridge ports vni-101
-</code></pre></div></div>
-
-<p><strong><span style="color:#074080">Step 4. Add static MAC record to forwarding database</span></strong></p>
-
-<p><u>Apply on srv.</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bridge fdb append 00:00:00:00:00:00 dev vx0 dst 192.168.1.4
-</code></pre></div></div>
-<p>This step we can skip on Cumulus Linux virtual switch as it will be applied automatically.</p>
-
-<p><strong><span style="color:#074080">Step 5. Connectivity check </span></strong></p>
-
-<p>Run PING command from both side (namespace VM3 and VPCS DB server).
-<img style="center" src="/images/static_vxlan/vm3_ping_db_srv.jpg" alt="Ping from namespace" title="Connectivity check with PING command" /></p>
-
-<p><u>Issue ping from VM3 (namespace)</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm3 ping 192.168.22.4 -- &gt; remote IP on DB server.
-</code></pre></div></div>
-<p><u>Issue ping from DB server (VPCS)</u></p>
-
-<p><img style="center" src="/images/static_vxlan/ping_db_srv_vm3.jpg" alt="Ping from VPCS" title="Connectivity check with PING command" /></p>
-
-<p>So, let’s check packet capture:
-<img style="float" width="750" height="400" src="/images/static_vxlan/db_srv_ping_vm3_pcap.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
-
-<p><br />
-<strong><a href="/vxlan/static_vxlan_part1/index.html" target="_blank">Part 1 Static VxLAN between Ubuntu hosts</a></strong><br />
-<strong><a href="/vxlan/static-vxlan-part3/index.html" target="_blank">Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway</a></strong><br />
-<strong><a href="/vxlan/static-vxlan-part4/index.html" target="_blank">Part 4 Static VxLAN Data Center Interconnect</a></strong><br />
-<br /></p>]]></content><author><name></name></author><category term="VxLAN" /><summary type="html"><![CDATA[In Part 2 will be covered the case when we have physical DB server connected to network via L2/L3 switch and it should communicate with application running inside virtual machine. Nvidia Cumulus VX virtual switch will play the role of L2/L3 switch. On Cumulus virtual switch VxLAN tunnel be terminated from remote server.]]></summary></entry></feed>
+<br /></p>]]></content><author><name></name></author><category term="VxLAN" /><summary type="html"><![CDATA[In Part 3 I will cover the case when Cumulus VX virtual switch is playing the role of DC edge gateway as well as interconnect between underlay and overlay network. On Cumulus virtual switch two VxLAN tunnels will be terminated from remote servers.]]></summary></entry></feed>
