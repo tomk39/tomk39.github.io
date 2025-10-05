@@ -8,10 +8,10 @@ excerpt_separator: <!-- excerpt -->
 <img src="/images/aci_contracts/1.png" alt="ACI-top" title="ACI-top"> 
 </p>
 
-We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications. 
+We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications. But that raises a critical question, how do these EPGs actually talk to each other securely?
 <!-- excerpt -->
 <p>
-But that raises a critical question, how do these EPGs actually talk to each other securely? How do you define precisely what traffic is allowed, and what isn't, between different application tiers or even external networks? This is where Cisco ACI Contracts come in – they're the essential mechanism for defining communication policies and enforcing security within your ACI fabric.
+How do you define precisely what traffic is allowed, and what isn't, between different application tiers or even external networks? This is where Cisco ACI Contracts come in – they're the essential mechanism for defining communication policies and enforcing security within your ACI fabric.
 </p>  
 
 
@@ -24,9 +24,9 @@ But that raises a critical question, how do these EPGs actually talk to each oth
 
 **<span style="color:#074080; font-size:18.0pt;" id="section1">1. Standard Contracts: Building the ACI Security Whitelist.</span>**  
 <div style="text-align: justify;">
-The Contract is the core policy object in Cisco ACI that enables inter-EPG communication based on a provider-consumer exchange. It defines the exact, permitted traffic flows, serving as the explicit allow-list that overrides the fabric's default deny-all. A standard contract is composed of several key components:  
-</div>
-<br>
+The Contract is the core policy object in Cisco ACI that enables inter-EPG communication based on a provider-consumer model. It defines the exact, permitted traffic flows, serving as the explicit allow-list that overrides the fabric's default deny-all. A standard contract is composed of several key components:  
+</div>  
+
 
 1. **Filters** are the most granular rules, specifying permitted traffic based on network attributes such as EtherType, IP, ICMPv4 and v6 Source and Destination Port/Range.
 

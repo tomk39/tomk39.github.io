@@ -1,12 +1,12 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-05T06:37:41+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-05T06:55:09+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
 </subtitle><entry><title type="html">Understanding Contracts in Cisco ACI: The Backbone of Network Security</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-contracts/" rel="alternate" type="text/html" title="Understanding Contracts in Cisco ACI: The Backbone of Network Security" /><published>2025-10-05T00:00:00+00:00</published><updated>2025-10-05T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-contracts</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-contracts/"><![CDATA[<p align="center">
 <img src="/images/aci_contracts/1.png" alt="ACI-top" title="ACI-top" /> 
 </p>
 
-<p>We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications. 
+<p>We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications. But that raises a critical question, how do these EPGs actually talk to each other securely?
 <!-- excerpt --></p>
 <p>
-But that raises a critical question, how do these EPGs actually talk to each other securely? How do you define precisely what traffic is allowed, and what isn't, between different application tiers or even external networks? This is where Cisco ACI Contracts come in – they're the essential mechanism for defining communication policies and enforcing security within your ACI fabric.
+How do you define precisely what traffic is allowed, and what isn't, between different application tiers or even external networks? This is where Cisco ACI Contracts come in – they're the essential mechanism for defining communication policies and enforcing security within your ACI fabric.
 </p>
 
 <p><strong><a href="#section1">1. Standard Contracts: Building the ACI Security Whitelist</a></strong>  <br />
@@ -17,9 +17,8 @@ But that raises a critical question, how do these EPGs actually talk to each oth
 
 <p><strong><span style="color:#074080; font-size:18.0pt;" id="section1">1. Standard Contracts: Building the ACI Security Whitelist.</span></strong></p>
 <div style="text-align: justify;">
-The Contract is the core policy object in Cisco ACI that enables inter-EPG communication based on a provider-consumer exchange. It defines the exact, permitted traffic flows, serving as the explicit allow-list that overrides the fabric's default deny-all. A standard contract is composed of several key components:  
+The Contract is the core policy object in Cisco ACI that enables inter-EPG communication based on a provider-consumer model. It defines the exact, permitted traffic flows, serving as the explicit allow-list that overrides the fabric's default deny-all. A standard contract is composed of several key components:  
 </div>
-<p><br /></p>
 
 <ol>
   <li>
@@ -237,7 +236,7 @@ External EPGs that are associated with L3Outs and are part of a VRF are also inc
 
 <p>Table 1. Representing comparison Preferred Groups vs. vzAny vs. Unenforced VRF.</p>
 
-<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications.]]></summary></entry><entry><title type="html">Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-core-build/" rel="alternate" type="text/html" title="Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained" /><published>2025-06-16T00:00:00+00:00</published><updated>2025-06-16T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-core-build</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-core-build/"><![CDATA[<p align="center">
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications. But that raises a critical question, how do these EPGs actually talk to each other securely?]]></summary></entry><entry><title type="html">Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-core-build/" rel="alternate" type="text/html" title="Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained" /><published>2025-06-16T00:00:00+00:00</published><updated>2025-06-16T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-core-build</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-core-build/"><![CDATA[<p align="center">
 <img src="/images/aci_building_blocks/1.png" alt="ACI-top" title="ACI-top" /> 
 </p>
 
