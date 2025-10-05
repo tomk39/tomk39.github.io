@@ -81,7 +81,7 @@ From ACI 6.0(4)F and NDO 4.2(3) following uses cases are supported:
 If you have plan to implement vzAny inside multi-site design, please check all details on link below:
 <a href="https://www.cisco.com/c/en/us/td/docs/dcn/ndo/4x/configuration/cisco-nexus-dashboard-orchestrator-configuration-guide-aci-421/ndo-configuration-aci-use-case-vzany-pbr-42x.html"  target="_blank">Cisco Nexus Dashboard Orchestrator Configuration Guide for ACI Fabrics</a>.
 
-**<span style="color:#074080">8. Main Routing improvements.ulti-Site support for vzAny PBR and L3Out-to-L3Out PBR use cases.</span>**
+**<span style="color:#074080">8. Main Routing improvements Multi-Site support for vzAny PBR and L3Out-to-L3Out PBR use cases.</span>**
 
 - BGP AS - Remove private AS from AS_PATH.
 - Support for BFD on Secondary subnet IPv4/IPv6.

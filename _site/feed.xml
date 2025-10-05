@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-05T06:55:09+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-05T07:19:02+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
 </subtitle><entry><title type="html">Understanding Contracts in Cisco ACI: The Backbone of Network Security</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-contracts/" rel="alternate" type="text/html" title="Understanding Contracts in Cisco ACI: The Backbone of Network Security" /><published>2025-10-05T00:00:00+00:00</published><updated>2025-10-05T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-contracts</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-contracts/"><![CDATA[<p align="center">
 <img src="/images/aci_contracts/1.png" alt="ACI-top" title="ACI-top" /> 
 </p>
@@ -967,7 +967,7 @@ If you have plan to implement vzAny inside multi-site design, please check all d
 <a href="https://www.cisco.com/c/en/us/td/docs/dcn/ndo/4x/configuration/cisco-nexus-dashboard-orchestrator-configuration-guide-aci-421/ndo-configuration-aci-use-case-vzany-pbr-42x.html" target="_blank">Cisco Nexus Dashboard Orchestrator Configuration Guide for ACI Fabrics</a>.</li>
 </ul>
 
-<p><strong><span style="color:#074080">8. Main Routing improvements.ulti-Site support for vzAny PBR and L3Out-to-L3Out PBR use cases.</span></strong></p>
+<p><strong><span style="color:#074080">8. Main Routing improvements Multi-Site support for vzAny PBR and L3Out-to-L3Out PBR use cases.</span></strong></p>
 
 <ul>
   <li>BGP AS - Remove private AS from AS_PATH.</li>
