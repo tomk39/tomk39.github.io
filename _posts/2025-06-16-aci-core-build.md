@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Cisco ACI's Core Building Blocks: Tenants to EPGs Explained"
-categories: ACI
+categories: ["Cisco ACI"]
 excerpt_separator: <!-- excerpt -->
 ---
 <p align="center">

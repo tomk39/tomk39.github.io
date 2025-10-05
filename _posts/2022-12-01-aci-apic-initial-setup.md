@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Cisco ACI Fabric - APIC Day 1 configuration
-categories: ACI
+categories: ["Cisco ACI"]
 comments: true
 ---
 

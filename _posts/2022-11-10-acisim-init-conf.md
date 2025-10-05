@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Cisco ACI Simulator APIC Initial setup
-categories: ACI
+categories: ["Cisco ACI"]
 comments: true
 ---
 <p align="center">

@@ -15,7 +15,7 @@ minima:
   # generate social links in footer
   social_links:
     twitter: tkranjec
-    github: tomk39
+    #github: tomk39
     # devto: jekyll
     # dribbble: jekyll
     #facebook: jekyll
@@ -51,7 +51,7 @@ header_pages:
  - categories.md
  - download.md
  - mycerts.md
- - about.md
+# - about.md
  - subscribe.md
  #- contact.md
  

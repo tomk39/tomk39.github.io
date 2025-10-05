@@ -1,5 +1,243 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-06-16T17:24:58+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
-</subtitle><entry><title type="html">Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained</title><link href="http://0.0.0.0:4000/aci/aci-core-build/" rel="alternate" type="text/html" title="Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained" /><published>2025-06-16T00:00:00+00:00</published><updated>2025-06-16T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-core-build</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-core-build/"><![CDATA[<p align="center">
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-05T06:37:41+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</subtitle><entry><title type="html">Understanding Contracts in Cisco ACI: The Backbone of Network Security</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-contracts/" rel="alternate" type="text/html" title="Understanding Contracts in Cisco ACI: The Backbone of Network Security" /><published>2025-10-05T00:00:00+00:00</published><updated>2025-10-05T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-contracts</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-contracts/"><![CDATA[<p align="center">
+<img src="/images/aci_contracts/1.png" alt="ACI-top" title="ACI-top" /> 
+</p>
+
+<p>We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications. 
+<!-- excerpt --></p>
+<p>
+But that raises a critical question, how do these EPGs actually talk to each other securely? How do you define precisely what traffic is allowed, and what isn't, between different application tiers or even external networks? This is where Cisco ACI Contracts come in – they're the essential mechanism for defining communication policies and enforcing security within your ACI fabric.
+</p>
+
+<p><strong><a href="#section1">1. Standard Contracts: Building the ACI Security Whitelist</a></strong>  <br />
+<strong><a href="#section2">2. Taboo Contracts: ACI’s Blacklist for Overriding Security Policies.</a></strong><br />
+<strong><a href="#section3">3. vzAny Contracts: The Shortcut to allow communication inside VRF.</a></strong><br />
+<strong><a href="#section4">4. Preferred Groups: When to Unenforce Policy in ACI.</a></strong><br />
+<strong><a href="#section5">5. Unenforced VRFs: The Full Open Communication inside VRF.</a></strong></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section1">1. Standard Contracts: Building the ACI Security Whitelist.</span></strong></p>
+<div style="text-align: justify;">
+The Contract is the core policy object in Cisco ACI that enables inter-EPG communication based on a provider-consumer exchange. It defines the exact, permitted traffic flows, serving as the explicit allow-list that overrides the fabric's default deny-all. A standard contract is composed of several key components:  
+</div>
+<p><br /></p>
+
+<ol>
+  <li>
+    <p><strong>Filters</strong> are the most granular rules, specifying permitted traffic based on network attributes such as EtherType, IP, ICMPv4 and v6 Source and Destination Port/Range.</p>
+  </li>
+  <li>
+    <p><strong>Subjects</strong> are Logical containers for Filters that define the directionality of the traffic flow. It also defines the directionality of the communication using options like “Apply Both Directions” and “Reverse Filter Ports” these “Subject” options are responsible for automatically creating the necessary return path TCAM entry (ACL rule) for a connection.</p>
+  </li>
+  <li><strong>Scopes</strong> Settings (Application Profile, VRF, Tenant, and Global) that establish the contract’s domain, controlling how widely it can be shared and reused across the ACI environment.
+    <ul>
+      <li><strong>Application Profile scope -</strong> communication policies that are strictly internal to a single application, ensuring that the contract is not accidentally used by other applications, even in the same VRF.</li>
+      <li><strong>VRF scope -</strong> The default and most common scope for defining communication policies between EPGs that share a Layer 3 forwarding domain. This scope is used for most intra-VRF contracts.</li>
+      <li><strong>Tenant Scope -</strong> Primarily for Inter-VRF (route leaking) communication when both VRFs are in the same tenant. It allows EPGs in one VRF to consume a contract provided by an EPG in a different VRF, as long as they are in the same tenant.</li>
+      <li><strong>Global scope -</strong> Inter-Tenant contracts, where the provider and consumer are in different tenants. For contracts defined in the Common Tenant that need to be universally available (e.g., contracts for shared services like DNS/NTP). or Inter-VRF communication where the VRFs are in different tenants.</li>
+    </ul>
+  </li>
+  <li><strong>Action</strong> specifies whether to permit, deny, or log the traffic (deny actions are supported in APIC Release 3.2(x) and later with EX/FX switches).</li>
+</ol>
+
+<p>As many are still struggling with ACI contract direction (Consumer to Provider and Provider to Consumer), let me reveal one secret:</p>
+<ul>
+  <li><strong>Consumer is the SOURCE</strong></li>
+  <li><strong>Provider is the DESTINATION</strong></li>
+</ul>
+
+<p>Apply your policies using this simple traffic flow rule, and you’ll get it right every time!</p>
+
+<p>Below figures 1 through 3 illustrate the operational behavior of the “Apply Both Directions” and “Reverse Filter Ports” settings.</p>
+
+<p><img src="/images/aci_contracts/1.gif" alt="ACI-Contracts1" title="ACI-Contracts1" /></p>
+
+<p>Figure 1. Applying contract between two EPGs.</p>
+
+<p>The Consumer EPG can only initiate a new session with the Provider EPG on the specified port, which in this case is TCP 22 for SSH.<br />
+However, communication won’t be established because the contract is currently applied only in the <strong>Consumer-to-Provider</strong> direction, causing the necessary return traffic to be dropped. Therefore, we have two options:</p>
+<ul>
+  <li>either create a second contract in the <strong>Provider-to-Consumer</strong> direction or</li>
+  <li>use the “Apply Both Directions” option with “Reverse Filter Ports.”</li>
+</ul>
+
+<p>Since contracts utilize hardware resources on the leaf switches, I recommend using “Apply Both Directions” with “Reverse Filter Ports.”</p>
+
+<p><img src="/images/aci_contracts/2.gif" alt="ACI-Contracts1" title="ACI-Contracts1" /></p>
+
+<p>Figure 2. Feature “Apply Both Direction” Enabled.</p>
+
+<p>With “Apply Both Directions” (Option ON):</p>
+<ul>
+  <li>The Consumer EPG can initiate a connection to the Provider EPG.</li>
+  <li>The Provider EPG can also initiate a new, separate connection back to the Consumer EPG on the same port(s).</li>
+</ul>
+
+<p>Based on Figure 2. SRV1 and SRV2 can open SSH session to DB1 and DB2 and vice versa DB1 and DB2 can open SSH session to SRV1 and SRV2 but communication won’t be established.</p>
+
+<p><img src="/images/aci_contracts/3.gif" alt="ACI-Contracts1" title="ACI-Contracts1" /></p>
+
+<p>Figure 3. Representing establishment of SSH session from Jumphost (SRV1 and SRV2) to DB servers.</p>
+
+<p><strong>Note:</strong><br />
+Contracts can be applied only on unicast traffic. Broadcast, Unknown unicast and Multicast Protocols (BUM) traffic and below listed protocols are implicitly permitted.</p>
+<ul>
+  <li>ARP reply (unicast)</li>
+  <li>DHCP v4 (prot 0x11, sport 0x44, dport 0x43)</li>
+  <li>DHCP v4 (prot 0x11, sport 0x43, dport 0x44)</li>
+  <li>DHCP v6 (prot 0x11, sport 0x222, dport 0x223)</li>
+  <li>OSPF (prot 0x59)</li>
+  <li>EIGRP (prot 0x58)</li>
+  <li>PIM (prot 0x67)</li>
+  <li>IGMP (prot 0x2)</li>
+  <li>ND-Sol ICMPv6 (prot 0x3a dport 0x0087)</li>
+  <li>ND-Advt ICMPv6 (prot 0x3a dport 0x0088)</li>
+</ul>
+
+<p>Moreover, in case of Multi-Site deployment, Cisco Multi-Site Orchestrator (MSO) creates one contract for each subject.</p>
+
+<div style="text-align: justify;">
+</div>
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section2">2. Taboo Contracts: ACI’s Blacklist for Overriding Security Policies.</span></strong></p>
+
+<p>Taboo contracts are specialized contracts used to explicitly deny specific traffic for a single EPG. Unlike standard contracts, they are:</p>
+<ul>
+  <li><strong>Unidirectional -</strong> Always provided by the EPG, with no consumer relationship.</li>
+  <li><strong>Higher Priority -</strong> Evaluated before standard contracts in the hardware’s Policy CAM.</li>
+  <li><strong>Limited Scope -</strong> Applied to a single EPG to block specific traffic, such as insecure protocols.</li>
+  <li><strong>Taboo contracts</strong> are not supported with Endpoint Security Groups (ESGs).</li>
+  <li><strong>They cannot be applied to vzAny.</strong></li>
+  <li><strong>Cisco best practices</strong> generally advise against its regular use in production environments and suggest to use standard contracts with deny action if it is needed.</li>
+</ul>
+
+<p><strong><ins>Example Use Case:</ins></strong></p>
+
+<ol>
+  <li>You want to block HTTP (port 80) traffic to Web_EPG while allowing other traffic via standard contracts.</li>
+  <li>Create a taboo contract Deny_HTTP_Taboo with a filter for TCP port 80 and apply it as provided by Web_EPG.</li>
+</ol>
+
+<p><a href="/images/aci_contracts/5.png" target="new" title="click here to see the full sized image"><img src="/images/aci_contracts/5.png" alt="ACI-Taboo" /></a></p>
+
+<p>Figure 4. A Taboo-Contract blocking access to HTTP (insecure TCP port 80).</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section3">3. vzAny Contracts: The Shortcut to allow communication inside VRF and more.</span></strong></p>
+
+<p>vzAny is a powerful construct that simplifies the application of security policies across all Endpoint Groups (EPGs) and Endpoint Security Groups (ESGs) within a Virtual Routing and Forwarding (VRF) instance.</p>
+
+<p><strong>Key characteristics of vzAny:</strong></p>
+
+<p><strong>1. VRF-Specific -</strong> vzAny is scoped to a single VRF and cannot directly apply to EPGs/ESGs in other VRFs.<br />
+<strong>2. Contract Simplification -</strong> Instead of applying a contract to each EPG/ESG individually, vzAny applies it to all EPGs/ESGs in the VRF simultaneously. <strong>Remember vzAny representing all EPGs inside VRF.</strong><br />
+<strong>3. Provider or Consumer Role -</strong> vzAny can act as a contract provider (offering services) or consumer (accessing services), depending on the configuration.<br />
+<strong>4. Standard Contracts Only -</strong> vzAny supports standard contracts but not taboo contracts, which are limited to individual EPGs.</p>
+
+<p><img src="/images/aci_contracts/2.png" alt="ACI-vzAny2" title="ACI-vzAny2" /></p>
+
+<p>Figure 5. Representation of applying the contract per EPG.</p>
+
+<p><img src="/images/aci_contracts/3.png" alt="ACI-vzAny3" title="ACI-vzAny3" /></p>
+
+<p>Figure 6. Representing of applying the contract to vzAny.</p>
+
+<p>Under the “Application Profile” and “Topology” tabs, you can view the graphical representation of the relationship between EPGs and Contracts.
+Below Figure 6 illustrates how DNS and NTP services are shared for all EPGs within the VRF using vzAny.</p>
+
+<p><strong>Note</strong> the checkbox on the right, “Show VRF in EPG,” which helps us identify which VRF a particular EPG belongs to.</p>
+
+<p><a href="/images/aci_contracts/4.png" target="new" title="click here to see the full sized image"><img src="/images/aci_contracts/4.png" alt="ACI-vzAny4" /></a></p>
+
+<p>Figure 7. Contract relationship: vzAny consumes services provided by DNS and NTP EPGs.</p>
+
+<p><strong>Please Note:</strong>
+External EPGs that are associated with L3Outs and are part of a VRF are also included in the vzAny logical group.</p>
+
+<p><strong>Limitations of vzAny:</strong><br />
+<strong>1. VRF Scope -</strong> vzAny is limited to a single VRF. It cannot directly apply contracts to EPGs/ESGs in other VRFs without additional configuration (e.g., contract export or shared services).<br />
+<strong>2. No Taboo Contracts -</strong> vzAny does not support taboo contracts, which are used to deny specific traffic for individual EPGs.<br />
+<strong>3. Over-Permissiveness Risk -</strong> Applying contracts to vzAny affects all EPGs/ESGs in the VRF, which may lead to unintended traffic flows if not carefully planned.<br />
+<strong>4. Not for Granular Control -</strong> For specific EPG-to-EPG policies, individual contracts are preferred over vzAny.</p>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section4">4. Preferred Groups: When to Unenforce Policy in ACI.</span></strong></p>
+
+<p>A Preferred Group is a VRF-level configuration that designates a subset of EPGs or ESGs within a VRF as members of a group that can communicate with each other without contracts. When an EPG or ESG is added to the Preferred Group, it can send and receive traffic to/from other Preferred Group members within the same VRF, bypassing the need for standard contracts, provided the VRF is in enforced mode. I would like to mentioned that only one group can exist per VRF.</p>
+
+<p><strong>Limitations of Preferred Groups:</strong></p>
+<ol>
+  <li>Preferred Groups are limited to a single VRF.</li>
+  <li>No Taboo Contract Support: Taboo contracts, which explicitly deny traffic for individual EPGs, cannot be overridden by Preferred Groups. If a taboo contract is applied to an EPG, it takes precedence.</li>
+  <li>All-or-Nothing Communication, preferred Group members can communicate freely with each other for all traffic types.</li>
+  <li>Not for External Connectivity: Preferred Groups do not apply to L3Out external EPGs for external connectivity; contracts are still required.</li>
+  <li>Policy CAM Usage: Preferred Group rules consume Policy CAM on leaf switches, which can impact scalability in large deployments.</li>
+  <li>If the VRF is unenforced, contracts are bypassed, and the Preferred Group has no effect (all EPGs/ESGs can communicate freely).</li>
+</ol>
+
+<p><a href="#top">Back to Top</a></p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section5">5. Unenforced VRFs: The Full Open Communication inside VRF.</span></strong></p>
+
+<p>An unenforced VRF is a VRF configuration in Cisco ACI where the policy enforcement is disabled.</p>
+
+<p><strong>In this mode:</strong></p>
+<ol>
+  <li>All EPGs and ESGs within the VRF can communicate with each other without requiring contracts.</li>
+  <li>The unenforced setting applies only to intra-VRF traffic; inter-VRF communication still requires contracts and route leaking.</li>
+  <li>Traffic flows freely between endpoints within the VRF.</li>
+  <li>Contracts, including standard and taboo contracts, are bypassed for intra-VRF communication.</li>
+  <li>Features like Preferred Groups and vzAny become irrelevant in an unenforced VRF, as all traffic is permitted.</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: left">Feature</th>
+      <th style="text-align: left">Preferred group</th>
+      <th style="text-align: left">vzAny</th>
+      <th>Unenforced VRF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: left">Scope</td>
+      <td style="text-align: left">Specific EPGs/ESGs in a VRF</td>
+      <td style="text-align: left">All EPGs/ESGs in a VRF</td>
+      <td>All EPGs/ESGs in a VRF</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Contract Requirement</td>
+      <td style="text-align: left">No contracts needed between members.</td>
+      <td style="text-align: left">Contracts required (provider/consumer)</td>
+      <td>No contracts needed for any traffic</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Granularity</td>
+      <td style="text-align: left">Selective (only members communicate freely).</td>
+      <td style="text-align: left">Applies to all EPGs/ESGs via contracts.</td>
+      <td>No control (all traffic allowed)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Inter-VRF Support</td>
+      <td style="text-align: left">No (requires contracts for inter-VRF).</td>
+      <td style="text-align: left">Supports inter-VRF with contract export.</td>
+      <td>No (VRF isolation still applies)</td>
+    </tr>
+    <tr>
+      <td style="text-align: left">Use Case</td>
+      <td style="text-align: left">Controlled open communication within VRF.</td>
+      <td style="text-align: left">Simplified contract application.</td>
+      <td>Fully open VRF (less secure)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Table 1. Representing comparison Preferred Groups vs. vzAny vs. Unenforced VRF.</p>
+
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications.]]></summary></entry><entry><title type="html">Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-core-build/" rel="alternate" type="text/html" title="Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained" /><published>2025-06-16T00:00:00+00:00</published><updated>2025-06-16T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-core-build</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-core-build/"><![CDATA[<p align="center">
 <img src="/images/aci_building_blocks/1.png" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -192,7 +430,7 @@ Associate the ESG as a Provider or Consumer of the contract, just like you would
 
 <p>By using ESGs, ACI provides an additional layer of flexibility and powerful tools for defining and enforcing security policies, especially beneficial in complex and evolving data center environments.</p>
 
-<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[In the world of modern data centers, Cisco Application Centric Infrastructure (ACI) stands out as a powerful solution for network automation, policy enforcement, and application agility.]]></summary></entry><entry><title type="html">Understanding Cisco ACI Access Policies: A Practical Guide</title><link href="http://0.0.0.0:4000/aci/aci-access-polices/" rel="alternate" type="text/html" title="Understanding Cisco ACI Access Policies: A Practical Guide" /><published>2025-05-28T00:00:00+00:00</published><updated>2025-05-28T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-access-polices</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-access-polices/"><![CDATA[<p align="center">
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[In the world of modern data centers, Cisco Application Centric Infrastructure (ACI) stands out as a powerful solution for network automation, policy enforcement, and application agility.]]></summary></entry><entry><title type="html">Understanding Cisco ACI Access Policies: A Practical Guide</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-access-polices/" rel="alternate" type="text/html" title="Understanding Cisco ACI Access Policies: A Practical Guide" /><published>2025-05-28T00:00:00+00:00</published><updated>2025-05-28T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-access-polices</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-access-polices/"><![CDATA[<p align="center">
 <img src="/images/aci_access_polices/1.gif" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -363,7 +601,7 @@ Secure and controlled access is fundamental to any network. This guide walks you
 </p>
 <p>Figure 12.End to end workflow to setup Virtual Port Channel (vPC) up and running on leaf switches.</p>
 
-<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[Understanding Cisco ACI Access Policies doesn’t have to be complicated. This practical guide simplifies the core concepts and clearly shows you what you need to know.]]></summary></entry><entry><title type="html">Designing with Cisco ACI</title><link href="http://0.0.0.0:4000/aci/designing-with-aci/" rel="alternate" type="text/html" title="Designing with Cisco ACI" /><published>2025-03-30T00:00:00+00:00</published><updated>2025-03-30T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/designing-with-aci</id><content type="html" xml:base="http://0.0.0.0:4000/aci/designing-with-aci/"><![CDATA[<p align="center">
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[Understanding Cisco ACI Access Policies doesn’t have to be complicated. This practical guide simplifies the core concepts and clearly shows you what you need to know.]]></summary></entry><entry><title type="html">Designing with Cisco ACI</title><link href="http://0.0.0.0:4000/cisco%20aci/designing-with-aci/" rel="alternate" type="text/html" title="Designing with Cisco ACI" /><published>2025-03-30T00:00:00+00:00</published><updated>2025-03-30T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/designing-with-aci</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/designing-with-aci/"><![CDATA[<p align="center">
 <img src="/images/designing_with_aci/1.gif" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -639,7 +877,7 @@ Policies and configurations can be consistently applied across all sites and pod
 Centralized management and automation reduce administrative overhead and operational complexity, making it easier to manage large-scale networks.</li>
 </ul>
 
-<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[Welcome to “Designing with Cisco ACI,” where we will dive into the Cisco ACI principals of creating robust, scalable, and efficient network architectures using Cisco’s Application Centric Infrastructure (ACI).]]></summary></entry><entry><title type="html">Unlocking the Power of Cisco ACI 6.0</title><link href="http://0.0.0.0:4000/aci/aci-6-new-features/" rel="alternate" type="text/html" title="Unlocking the Power of Cisco ACI 6.0" /><published>2024-09-27T00:00:00+00:00</published><updated>2024-09-27T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-6-new-features</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-6-new-features/"><![CDATA[<p align="center">
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[Welcome to “Designing with Cisco ACI,” where we will dive into the Cisco ACI principals of creating robust, scalable, and efficient network architectures using Cisco’s Application Centric Infrastructure (ACI).]]></summary></entry><entry><title type="html">Unlocking the Power of Cisco ACI 6.0</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-6-new-features/" rel="alternate" type="text/html" title="Unlocking the Power of Cisco ACI 6.0" /><published>2024-09-27T00:00:00+00:00</published><updated>2024-09-27T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-6-new-features</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-6-new-features/"><![CDATA[<p align="center">
 <img src="/images/aci_6_new_features/1.png" alt="ACI_60" title="ACI_60" />   
 </p>
 <p style="text-align: justify;">
@@ -800,7 +1038,7 @@ If you have plan to implement vzAny inside multi-site design, please check all d
 
 <p>References: <br />
 <a href="https://www.cisco.com/c/en/us/td/docs/dcn/aci/apic/6x/release-notes/cisco-apic-release-notes-611.html" target="_blank">Cisco Application Policy Infrastructure Controller</a> <br />
-<a href="https://www.cisco.com/c/en/us/td/docs/dcn/aci/apic/all/cisco-aci-releases-changes-in-behavior.html" target="_blank">Cisco ACI Releases Changes in Behavior</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[The Cisco ACI 6.0 release has been available for a couple of months now. Let’s check out what it brings to network engineers and IT professionals. Experience a new era of enhanced performance, security, and automation capabilities. In this blog, we’ll dive into the key enhancements of Cisco ACI 6.0 and explore how they can empower your network infrastructure.]]></summary></entry><entry><title type="html">Mastering Cisco ACI Physical Design</title><link href="http://0.0.0.0:4000/aci/physical-design/" rel="alternate" type="text/html" title="Mastering Cisco ACI Physical Design" /><published>2024-07-07T00:00:00+00:00</published><updated>2024-07-07T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/physical-design</id><content type="html" xml:base="http://0.0.0.0:4000/aci/physical-design/"><![CDATA[<p align="center">
+<a href="https://www.cisco.com/c/en/us/td/docs/dcn/aci/apic/all/cisco-aci-releases-changes-in-behavior.html" target="_blank">Cisco ACI Releases Changes in Behavior</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[The Cisco ACI 6.0 release has been available for a couple of months now. Let’s check out what it brings to network engineers and IT professionals. Experience a new era of enhanced performance, security, and automation capabilities. In this blog, we’ll dive into the key enhancements of Cisco ACI 6.0 and explore how they can empower your network infrastructure.]]></summary></entry><entry><title type="html">Mastering Cisco ACI Physical Design</title><link href="http://0.0.0.0:4000/cisco%20aci/physical-design/" rel="alternate" type="text/html" title="Mastering Cisco ACI Physical Design" /><published>2024-07-07T00:00:00+00:00</published><updated>2024-07-07T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/physical-design</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/physical-design/"><![CDATA[<p align="center">
 <img src="/images/phy_design/2.png" alt="Switch SFP Cables" title="ACI Phy Design" /> 
 </p>
 <p style="text-align: justify;">
@@ -973,7 +1211,7 @@ For a comprehensive understanding and decoding of all Nexus Part Numbers names, 
 <img class="center" style="float" width="800" height="400" src="/images/phy_design/taxonomy_nk9.png" alt="taxonomynk9" title="PHY" />  
 </p>
 
-<p><strong>Figure 4</strong> Cheet-sheet for decoding Cisco Nexus 9000 Series Part Numbers</p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[Let's dive into the world of Cisco ACI physical design. After all, we all know that without hardware, there is no cloud or networking.]]></summary></entry><entry><title type="html">Cisco ACI Fabric - APIC Day 1 configuration</title><link href="http://0.0.0.0:4000/aci/aci-apic-initial-setup/" rel="alternate" type="text/html" title="Cisco ACI Fabric - APIC Day 1 configuration" /><published>2022-12-01T00:00:00+00:00</published><updated>2022-12-01T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-apic-initial-setup</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-apic-initial-setup/"><![CDATA[<p align="center">
+<p><strong>Figure 4</strong> Cheet-sheet for decoding Cisco Nexus 9000 Series Part Numbers</p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[Let's dive into the world of Cisco ACI physical design. After all, we all know that without hardware, there is no cloud or networking.]]></summary></entry><entry><title type="html">Cisco ACI Fabric - APIC Day 1 configuration</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-apic-initial-setup/" rel="alternate" type="text/html" title="Cisco ACI Fabric - APIC Day 1 configuration" /><published>2022-12-01T00:00:00+00:00</published><updated>2022-12-01T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-apic-initial-setup</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-apic-initial-setup/"><![CDATA[<p align="center">
 <img src="/images/apic_day_0_config/apic.jpg" alt="Cisco ACI APIC" title="Cisco APIC interconnects" />  
 </p>
 <p style="text-align: justify;">
@@ -1104,7 +1342,7 @@ Next few steps will describe how we can disable  messages from Cisco Smart Softw
 
 <p><img class="center" width="500" height="400" src="/images/apic_day_0_config/21.jpg" alt="APIC notification" title="APIC notification" /></p>
 
-<p>I have walked through most important parameters for Cisco ACI Fabric. Now you can start to play with Cisco ACI Fabric network objects or you can proceed with fine tunning for the production environment. 😎</p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator.]]></summary></entry><entry><title type="html">Cisco ACI Simulator APIC Initial setup</title><link href="http://0.0.0.0:4000/aci/acisim-init-conf/" rel="alternate" type="text/html" title="Cisco ACI Simulator APIC Initial setup" /><published>2022-11-10T00:00:00+00:00</published><updated>2022-11-10T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/acisim-init-conf</id><content type="html" xml:base="http://0.0.0.0:4000/aci/acisim-init-conf/"><![CDATA[<p align="center">
+<p>I have walked through most important parameters for Cisco ACI Fabric. Now you can start to play with Cisco ACI Fabric network objects or you can proceed with fine tunning for the production environment. 😎</p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator.]]></summary></entry><entry><title type="html">Cisco ACI Simulator APIC Initial setup</title><link href="http://0.0.0.0:4000/cisco%20aci/acisim-init-conf/" rel="alternate" type="text/html" title="Cisco ACI Simulator APIC Initial setup" /><published>2022-11-10T00:00:00+00:00</published><updated>2022-11-10T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/acisim-init-conf</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/acisim-init-conf/"><![CDATA[<p align="center">
 <img src="/images/acisim_init_conf/subject.jpg" alt="Cisco ACI Simulator" title="Cisco ACI Initial Configuration" />  
 </p>
 <p style="text-align: justify;">
@@ -1170,7 +1408,7 @@ a:active {
   margin-right: auto;
 }
 </style>
-</head>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[If you already read my last post How to run Cisco ACI Simulator on KVM host you know that now we need to do first step and go through Cisco APIC initial configuration setup. If you need help this post is right place for you. So let' go and see what we need to do.]]></summary></entry><entry><title type="html">How to run Cisco ACI Simulator on KVM host</title><link href="http://0.0.0.0:4000/aci/acisim-on-kvm/" rel="alternate" type="text/html" title="How to run Cisco ACI Simulator on KVM host" /><published>2022-06-13T00:00:00+00:00</published><updated>2022-06-13T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/acisim-on-kvm</id><content type="html" xml:base="http://0.0.0.0:4000/aci/acisim-on-kvm/"><![CDATA[<p align="center">
+</head>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[If you already read my last post How to run Cisco ACI Simulator on KVM host you know that now we need to do first step and go through Cisco APIC initial configuration setup. If you need help this post is right place for you. So let' go and see what we need to do.]]></summary></entry><entry><title type="html">How to run Cisco ACI Simulator on KVM host</title><link href="http://0.0.0.0:4000/cisco%20aci/acisim-on-kvm/" rel="alternate" type="text/html" title="How to run Cisco ACI Simulator on KVM host" /><published>2022-06-13T00:00:00+00:00</published><updated>2022-06-13T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/acisim-on-kvm</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/acisim-on-kvm/"><![CDATA[<p align="center">
 <img src="/images/acisim_on_kvm/subject.jpg" alt="Cisco ACI Simulator" title="Cisco ACI Simulator Spine leaf and APIC" />  
 </p>
 <p style="text-align: justify;">
@@ -1304,7 +1542,7 @@ for ACISIM VM.</li>
 <li>In this Blog post I have used 8x vCPS and 32 GB of RAM below this it will not work.</li>
 <li>We can use Cisco ACI simulator on KVM host, even if it is not officially supported by vendor.</li>
 </ul>
-<p><strong><span style="color:#074080">Enjoy your ACI simulator and happy testing!!!</span></strong></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[As officially ACI Simulator is not supported on KVM host and I didn't have ESXi in my lab I have decided to do experiment. Moreover I have played with amount of hardware resource necessary for this experiment. If you would like to know result of this experiment, you can proceed and read rest of the post.]]></summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 4</title><link href="http://0.0.0.0:4000/vxlan/static-vxlan-part4/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 4" /><published>2021-12-24T00:00:00+00:00</published><updated>2021-12-24T00:00:00+00:00</updated><id>http://0.0.0.0:4000/vxlan/static-vxlan-part4</id><content type="html" xml:base="http://0.0.0.0:4000/vxlan/static-vxlan-part4/"><![CDATA[<style>
+<p><strong><span style="color:#074080">Enjoy your ACI simulator and happy testing!!!</span></strong></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[As officially ACI Simulator is not supported on KVM host and I didn't have ESXi in my lab I have decided to do experiment. Moreover I have played with amount of hardware resource necessary for this experiment. If you would like to know result of this experiment, you can proceed and read rest of the post.]]></summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 4</title><link href="http://0.0.0.0:4000/cumulus%20linux/static-vxlan-part4/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 4" /><published>2021-12-24T00:00:00+00:00</published><updated>2021-12-24T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cumulus%20linux/static-vxlan-part4</id><content type="html" xml:base="http://0.0.0.0:4000/cumulus%20linux/static-vxlan-part4/"><![CDATA[<style>
 p1 {
   font-size: 11px;
 }
@@ -1510,222 +1748,4 @@ set bridge-domains br-vl22 vxlan vni 103
 <strong><a href="/vxlan/static_vxlan_part1/index.html" target="_blank">Part 1 Static VxLAN between Ubuntu hosts</a></strong><br />
 <strong><a href="/vxlan/static-vxlan-part2/index.html" target="_blank">Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth</a></strong><br />
 <strong><a href="/vxlan/static-vxlan-part3/index.html" target="_blank">Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway</a></strong><br />
-<br /></p>]]></content><author><name></name></author><category term="VxLAN" /><summary type="html"><![CDATA[Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs.]]></summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 3</title><link href="http://0.0.0.0:4000/vxlan/static-vxlan-part3/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 3" /><published>2021-11-12T00:00:00+00:00</published><updated>2021-11-12T00:00:00+00:00</updated><id>http://0.0.0.0:4000/vxlan/static-vxlan-part3</id><content type="html" xml:base="http://0.0.0.0:4000/vxlan/static-vxlan-part3/"><![CDATA[<style>
-p1 {
-  font-size: 11px;
-}
-p2 {
-  font-size: 12px;
-}
-</style>
-
-<p align="center">
-<img src="/images/static_vxlan/vxlan_tunnel3.jpg" alt="Overlay VxLAN Cumulus Linux" title="VxLAN between Ubuntu and Cumulus VX" />  
-</p>
-<p style="text-align: justify;">
-In Part 3 I will cover the case when Cumulus VX virtual switch is playing the role of DC edge gateway as well as interconnect between underlay and overlay network. On Cumulus virtual switch two VxLAN tunnels will be terminated from remote servers.  
-</p>
-
-<p style="text-align: justify;">
-Details on how to download Cumulus Linux and VPCS (Virtual PC Simulator) can be found in 
-<a href="/vxlan/static-vxlan-part2/index.html">Part 2</a>.
-Like in Part 1 and 2, physical server with VMs will be deployed as virtual machine on baremetal KVM host and will be represented as "srv" and "srv1". Nested VM (application) will be simulated with Linux network namespace. On Cumulus VX virtual switch will be used bridge, which is not VLAN aware, as both tunnels from srv and srv1 will be terminated inside that bridge. Details on how everything is interconnected you can find below on the network diagram.
-</p>
-
-<p align="center"> 
-  <img src="/images/static_vxlan/net_diag3.jpg" alt="VxLAN, VTEP, Overlay Network" title="VxLAN Network diagram" /> 
-</p>
-
-<p><strong>Prerequisites for servers (virtual machines):</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: left">VM name</th>
-      <th style="text-align: left">OS Version</th>
-      <th style="text-align: left">Extra installed SW</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">srv</td>
-      <td style="text-align: left">Ubuntu 20.04</td>
-      <td style="text-align: left">bridge-utils</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">srv1</td>
-      <td style="text-align: left">Ubuntu 20.04</td>
-      <td style="text-align: left">bridge-utils</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">virtual switch</td>
-      <td style="text-align: left">Cumulus Linux 4.4.1 VX (Nvidia)</td>
-      <td style="text-align: left"> </td>
-    </tr>
-  </tbody>
-</table>
-
-<p><strong><span style="color:#074080">Step 1. Run VMs and install bridge-utils</span></strong></p>
-
-<p>Let’s assume that virtual machine “srv” and “srv1” (Ubuntu), Cumulus VX vSwitch and VPCS are successfully deployed on KVM host.</p>
-
-<p>Bridge-utils were installed on Ubuntu virtual machine using the command below:</p>
-
-<p><code>apt install bridge-utils</code></p>
-
-<p>version of bridge-utils we can check from CLI from srv and srv1 with the following command:</p>
-
-<p><code>apt list | grep bridge-utils</code></p>
-
-<p>output should be</p>
-
-<p><strong><code>bridge-utils/focal,now 1.6-2ubuntu1 amd64 [installed]</code></strong></p>
-
-<p>version can vary.</p>
-
-<p><strong><span style="color:#074080">Step 2. Initial configuration of Linux srv, srv1  and Nvidia Cumulus VX virtual switch</span></strong></p>
-
-<p><u>Apply configuration on srv</u></p>
-
-<p>Creation of namespaces.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns add vm3 
-</code></pre></div></div>
-<p><u>Apply configuration on srv1.</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns add vm1
-</code></pre></div></div>
-
-<p>Creation of bridges on both hosts srv and srv1.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add br-vxlan type bridge
-ip link set br-vxlan up
-ip link set mtu 9000 dev br-vxlan
-</code></pre></div></div>
-<p>Add static routes for Loopback IP on Cumulus VX switch on both hosts srv and srv1.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip route add 192.168.1.4/32 via 192.168.100.24 dev ens0
-</code></pre></div></div>
-<p>Disable spanning-tree on the bridges</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>brctl stp br-vxlan off
-</code></pre></div></div>
-<p>Creation of veth interfaces on both host VMs.</p>
-
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add veth0 type veth peer veth1
-ip link set up veth0
-ip link set veth0 master br-vxlan
-</code></pre></div></div>
-<p><u>Apply configuration on srv.</u><br />
-Adding IP address on veth1 and bring interface up</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns exec vm3 ip a a 192.168.22.1/24 dev veth1
-ip netns exec vm3 ip link set up veth1
-</code></pre></div></div>
-<p><u>Apply configuration on srv1.</u><br />
-Adding IP address on veth1 and bring interface up.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip netns exec vm1 ip a a 192.168.22.2/24 dev veth1
-ip netns exec vm1 ip link set up veth1
-</code></pre></div></div>
-<p><u>Configure Cumulus VX virtual switch.</u></p>
-
-<p>When you connect for the first time to Cumulus VX console it will request you to change default password.</p>
-
-<p><strong><p1><u>Default User and Password for Cumulus VX:</u></p1></strong></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>user: cumulus
-pass: cumulus
-</code></pre></div></div>
-
-<p>Set hostname of Cumulus Linux virtual switch.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add hostname leaf1
-</code></pre></div></div>
-<p>Configure L3 interface for connection with underlay network.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp1 ip address 192.168.100.24/24
-</code></pre></div></div>
-<p>Configuration of Loopback interface, which will be used for VTEP termination point.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add loopback lo ip address 192.168.1.4/32
-</code></pre></div></div>
-<p>Add swp2 interface (please note interface will be used without VLAN id).</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp2 
-</code></pre></div></div>
-<p>Create bridge not VLAN aware.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge br-12
-</code></pre></div></div>
-<p>Add interface swp2 to bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge br-12 ports swp2
-</code></pre></div></div>
-
-<p><strong><span style="color:#074080">Step 3. Configuration of  VxLAN Tunnel</span></strong></p>
-
-<p><u>Apply on srv.</u></p>
-
-<p>Create VxLAN tunnel interface with VNI 101.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add vx1 type vxlan id 101 local 192.168.100.20 remote 192.168.1.4 dev ens0 dstport 4789
-</code></pre></div></div>
-<p>Bring up tunnel interface.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx1 up
-</code></pre></div></div>
-<p>Add VxLAN tunnel interface to specific bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx1 master br-vxlan
-</code></pre></div></div>
-<p><u>Apply on srv1.</u></p>
-
-<p>Create VxLAN tunnel interface with VNI 102.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link add vx1 type vxlan id 102 local 192.168.100.21 remote 192.168.1.4 dev ens0 dstport 4789
-</code></pre></div></div>
-<p>Bring up tunnel interface.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx1 up
-</code></pre></div></div>
-<p>Add VxLAN tunnel interface to specific bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ip link set vx1 master br-vxlan
-</code></pre></div></div>
-<p><u>Configure Cumulus VX virtual switch.</u></p>
-
-<p><strong><p1><u>Default User and Password for Cumulus VX:</u></p1></strong></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>user: cumulus
-pass: cumulus
-</code></pre></div></div>
-<p>Add vni-101 and vni-102 interfaces.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-101 vxlan id 101
-net add vxlan vni-102 vxlan id 102
-</code></pre></div></div>
-<p>Add VxLAN interfaces to the bridge</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge br-12 ports vni-101
-net add bridge br-12 ports vni-102
-</code></pre></div></div>
-<p>For both tunnels set local and remote VETP address</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-101 vxlan local-tunnelip 192.168.1.4
-net add vxlan vni-101 vxlan remoteip 192.168.100.20
-
-net add vxlan vni-102 vxlan local-tunnelip 192.168.1.4
-net add vxlan vni-102 vxlan remoteip 192.168.100.21
-</code></pre></div></div>
-
-<p><strong><span style="color:#074080">Step 4. Add static MAC record to forwarding database</span></strong></p>
-
-<p><u>Apply on srv and srv1.</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bridge fdb append 00:00:00:00:00:00 dev vx1 dst 192.168.1.4
-</code></pre></div></div>
-<p>This step we can skip on Cumulus Linux virtual switch as it will be applied automatically.</p>
-
-<p><strong><span style="color:#074080">Step 5. Connectivity check </span></strong></p>
-
-<p>Run PING command from VM1, VM3 and DB server (VPCS)
-<img style="center" src="/images/static_vxlan/con_check_vm1_vm3_db_cumulus.jpg" alt="Ping from namespace" title="Connectivity check with PING command" /></p>
-
-<p><u>Issue ping from VM3 (namespace)</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm3 ping 192.168.22.4 -- &gt; remote IP on DB server.
-</code></pre></div></div>
-
-<p><img style="float" width="750" height="250" src="/images/static_vxlan/vm3_ping_db_part3.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
-
-<p><u>Issue ping from VM1 (namespace)</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm1 ping 192.168.22.4 -- &gt; remote IP on DB server.
-</code></pre></div></div>
-<p><img style="float" width="750" height="250" src="/images/static_vxlan/vm1_ping_db.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
-
-<p>From the capture you can see that two VxLAN tunnels have been used for interconnection with Cumulus VX virtual switch. Both tunnels landed on to one bridge on Cumulus VX virtual switch. That way we achieve communication between two VMs and DB server (VPCS).</p>
-
-<p><u>Issue ping from DB server (VPCS) to check connectivity with VM1 and VM3</u></p>
-
-<p><img style="center" width="750" height="250" src="/images/static_vxlan/db_srv_ping_vm3_pcap_part3.jpg" alt="Ping from VPCS" title="Connectivity check with PING command" /></p>
-
-<p><br />
-<strong><a href="/vxlan/static_vxlan_part1/index.html" target="_blank">Part 1 Static VxLAN between Ubuntu hosts</a></strong><br />
-<strong><a href="/vxlan/static-vxlan-part2/index.html" target="_blank">Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth</a></strong><br />
-<strong><a href="/vxlan/static-vxlan-part4/index.html" target="_blank">Part 4 Static VxLAN Data Center Interconnect</a></strong><br />
-<br /></p>]]></content><author><name></name></author><category term="VxLAN" /><summary type="html"><![CDATA[In Part 3 I will cover the case when Cumulus VX virtual switch is playing the role of DC edge gateway as well as interconnect between underlay and overlay network. On Cumulus virtual switch two VxLAN tunnels will be terminated from remote servers.]]></summary></entry></feed>
+<br /></p>]]></content><author><name></name></author><category term="Cumulus Linux" /><summary type="html"><![CDATA[Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs.]]></summary></entry></feed>

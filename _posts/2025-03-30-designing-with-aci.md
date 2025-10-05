@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Designing with Cisco ACI
-categories: ACI
+categories: ["Cisco ACI"]
 excerpt_separator: <!-- excerpt -->
 --- 
 <p align="center">
