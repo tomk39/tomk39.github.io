@@ -8,12 +8,16 @@ excerpt_separator: <!-- excerpt -->
 <img src="/images/aci_contracts/1.png" alt="ACI-top" title="ACI-top"> 
 </p>
 
-We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for your applications. But that raises a critical question, how do these EPGs actually talk to each other securely?
+We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, 
+Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. 
+We saw how these components create a structured environment for applications, but that raises a critical question, how do these EPGs actually talk to each other securely?
 <!-- excerpt -->
 <p>
-How do you define precisely what traffic is allowed, and what isn't, between different application tiers or even external networks? This is where Cisco ACI Contracts come in – they're the essential mechanism for defining communication policies and enforcing security within your ACI fabric.
+How do you define precisely what traffic is allowed, and what is denied, between different application tiers or external networks? This is where Cisco ACI Contracts come in. They are the core enforcement mechanism for defining communication policies and building a 
+zero-trust security model within your ACI fabric.
 </p>  
 
+In this post, we'll cover the different types of contracts and policy enforcement options: 
 
 **<a href="#section1">1. Standard Contracts: Building the ACI Security Whitelist</a>**    
 **<a href="#section2">2. Taboo Contracts: ACI's Blacklist for Overriding Security Policies.</a>**  
