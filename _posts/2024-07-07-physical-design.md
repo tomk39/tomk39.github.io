@@ -27,9 +27,9 @@ In a Cisco Application Centric Infrastructure (ACI), each of the leaf, Fabric Ex
 **<span style="color:#074080">Fabric Extenders (FEX)</span>** 
 
 Fabric Extenders (FEX) in Cisco's Application Centric Infrastructure (ACI) have several key functions:
-- Port Extension - FEX extends the ports of a Nexus switch, acting as a remote line card⁶. This allows for the use of more cost-effective devices with a reduced set of features that are connected to the Leaf Switches.  
-- Agile Connectivity - FEX offers agile connectivity for rack and blade servers and for converged fabric deployments⁵. It delivers innovation to the data center, reduces total cost of ownership, and gains architectural flexibility.
-- Configuration and Management - All management is done on the parent switch; there is no console/vty access on the FEX⁶. This simplifies the management of the network infrastructure.
+- Port Extension - FEX extends the ports of a Nexus switch, acting as a remote line card. This allows for the use of more cost-effective devices with a reduced set of features that are connected to the Leaf Switches.  
+- Agile Connectivity - FEX offers agile connectivity for rack and blade servers and for converged fabric deployments. It delivers innovation to the data center, reduces total cost of ownership, and gains architectural flexibility.
+- Configuration and Management - All management is done on the parent switch; there is no console/vty access on the FEX. This simplifies the management of the network infrastructure.
 - Cisco ACI leaf switch models with -G or -Tin the product name, such as Cisco Nexus N9K-C9348GC-FXP, N9K-C93108TC-FX, N9K-C93108TC-FX-24, N9K-C93108TC-EX, N9K-C93108TC-EX-24, N9K-C93216TC-FX2, and N9K-93108TC-FX3P.  
 
 Discover the steps to configure Fabric Extenders (FEX) in Cisco ACI in Cisco comprehensive guide available <a href="https://www.cisco.com/c/en/us/support/docs/cloud-systems-management/application-policy-infrastructure-controller-apic/200529-Configure-a-Fabric-Extender-with-Applica.html"  target="_blank">here</a>.

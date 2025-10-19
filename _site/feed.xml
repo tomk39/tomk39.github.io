@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-07T17:37:05+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-19T09:19:53+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
 </subtitle><entry><title type="html">Understanding Contracts in Cisco ACI: The Backbone of Network Security</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-contracts/" rel="alternate" type="text/html" title="Understanding Contracts in Cisco ACI: The Backbone of Network Security" /><published>2025-10-05T00:00:00+00:00</published><updated>2025-10-05T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-contracts</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-contracts/"><![CDATA[<p align="center">
 <img src="/images/aci_contracts/1.png" alt="ACI-top" title="ACI-top" /> 
 </p>
@@ -945,9 +945,9 @@ During the initial setup, the wizard will ask you to choose how the APIC is conn
 <p><strong><span style="color:#074080">5.Weight-Based Symmetric PBR</span></strong></p>
 
 <p>In 6.0 it was introduced Weight-based PBR it means that we can send more traffic to specific node.
-Use case:
-•	On specific node we have connected Load Balancer.
-•	On specific node we have more powerful firewall in the group.
+Use case:<br />
+•	On specific node we have connected Load Balancer.<br />
+•	On specific node we have more powerful firewall in the group.<br />
 •	Introducing new firewall, we can redirect small amount of traffic to new firewall for test purposes.</p>
 
 <p><strong><span style="color:#074080">6.Stretched L3out SVI across remote leaves.</span></strong></p>
@@ -1068,9 +1068,9 @@ In a Cisco Application Centric Infrastructure (ACI), each of the leaf, Fabric Ex
 
 <p>Fabric Extenders (FEX) in Cisco’s Application Centric Infrastructure (ACI) have several key functions:</p>
 <ul>
-  <li>Port Extension - FEX extends the ports of a Nexus switch, acting as a remote line card⁶. This allows for the use of more cost-effective devices with a reduced set of features that are connected to the Leaf Switches.</li>
-  <li>Agile Connectivity - FEX offers agile connectivity for rack and blade servers and for converged fabric deployments⁵. It delivers innovation to the data center, reduces total cost of ownership, and gains architectural flexibility.</li>
-  <li>Configuration and Management - All management is done on the parent switch; there is no console/vty access on the FEX⁶. This simplifies the management of the network infrastructure.</li>
+  <li>Port Extension - FEX extends the ports of a Nexus switch, acting as a remote line card. This allows for the use of more cost-effective devices with a reduced set of features that are connected to the Leaf Switches.</li>
+  <li>Agile Connectivity - FEX offers agile connectivity for rack and blade servers and for converged fabric deployments. It delivers innovation to the data center, reduces total cost of ownership, and gains architectural flexibility.</li>
+  <li>Configuration and Management - All management is done on the parent switch; there is no console/vty access on the FEX. This simplifies the management of the network infrastructure.</li>
   <li>Cisco ACI leaf switch models with -G or -Tin the product name, such as Cisco Nexus N9K-C9348GC-FXP, N9K-C93108TC-FX, N9K-C93108TC-FX-24, N9K-C93108TC-EX, N9K-C93108TC-EX-24, N9K-C93216TC-FX2, and N9K-93108TC-FX3P.</li>
 </ul>
 

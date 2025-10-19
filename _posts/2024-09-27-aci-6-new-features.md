@@ -58,9 +58,9 @@ The Cisco ACI 6.0 release has been available for a couple of months now. Let’s
 **<span style="color:#074080">5.Weight-Based Symmetric PBR</span>**
 
 In 6.0 it was introduced Weight-based PBR it means that we can send more traffic to specific node.
-Use case:
-•	On specific node we have connected Load Balancer.
-•	On specific node we have more powerful firewall in the group.
+Use case:  
+•	On specific node we have connected Load Balancer.  
+•	On specific node we have more powerful firewall in the group.  
 •	Introducing new firewall, we can redirect small amount of traffic to new firewall for test purposes.
 
 **<span style="color:#074080">6.Stretched L3out SVI across remote leaves.</span>**
