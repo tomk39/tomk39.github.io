@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Understanding Cisco ACI Access Policies: A Practical Guide"
-categories: ["Cisco ACI"]
+categories: ["ACI"]
 excerpt_separator: <!-- excerpt -->
 ---
 <p align="center">

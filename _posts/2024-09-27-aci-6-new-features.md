@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Unlocking the Power of Cisco ACI 6.0
-categories: ["Cisco ACI"]
+categories: ["ACI"]
 ---
 
 <p align="center">

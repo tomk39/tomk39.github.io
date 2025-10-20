@@ -1,5 +1,195 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-19T09:19:53+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
-</subtitle><entry><title type="html">Understanding Contracts in Cisco ACI: The Backbone of Network Security</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-contracts/" rel="alternate" type="text/html" title="Understanding Contracts in Cisco ACI: The Backbone of Network Security" /><published>2025-10-05T00:00:00+00:00</published><updated>2025-10-05T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-contracts</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-contracts/"><![CDATA[<p align="center">
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://0.0.0.0:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://0.0.0.0:4000/" rel="alternate" type="text/html" /><updated>2025-10-20T17:30:10+00:00</updated><id>http://0.0.0.0:4000/feed.xml</id><title type="html">Tomislav Kranjec’s Blog</title><subtitle>| Service Provider | Data Center | Cloud | Virtualization | SDN/NFV |
+</subtitle><entry><title type="html">Deploy a 5-Router Lab in 15 Minutes on Juniper SRX 100</title><link href="http://0.0.0.0:4000/juniper/juniper-srx-lab/" rel="alternate" type="text/html" title="Deploy a 5-Router Lab in 15 Minutes on Juniper SRX 100" /><published>2025-10-20T00:00:00+00:00</published><updated>2025-10-20T00:00:00+00:00</updated><id>http://0.0.0.0:4000/juniper/juniper-srx-lab</id><content type="html" xml:base="http://0.0.0.0:4000/juniper/juniper-srx-lab/"><![CDATA[<p align="center">
+
+<img src="/images/juniper_virtlab/1.png" alt="Juniper-SRX" title="Juniper-SRX-top" />  
+
+</p>
+
+<p>In this post, we’ll show you exactly how to deploy a fully connected 5-router topology in less than 15 minutes. 
+Transforming your Juniper SRX 100 from an old forgotten box into a high-speed engine for learning and validation.
+<!-- excerpt --></p>
+<p>
+
+</p>
+<p>Before we begin, here is what you’ll need to execute this fast deployment:</p>
+<ul>
+  <li>Core Hardware: Your Juniper SRX 100 device.</li>
+  <li>Connectivity: Patch cables.</li>
+  <li>Time: A clear 15-minute window for the configuration process.</li>
+</ul>
+
+<p>Let’s dive in!</p>
+
+<p>To deploy our 5-router lab in minutes, we will follow these three quick steps:</p>
+
+<p><strong><a href="#section1">1. Loop two physical ports on SRX.</a></strong>  <br />
+<strong><a href="#section2">2. Configure Packet Mode and Disable Security Flow on Juniper SRX.</a></strong><br />
+<strong><a href="#section3">3. Create the 5-Router Topology with Virtual Router Instance type.</a></strong></p>
+
+<p>The target lab design topology is shown in Figure 1. below.</p>
+
+<p><img src="/images/juniper_virtlab/2.png" alt="Juniper SRX" title="Juniper SRX Lab" /><br />
+Figure 1. Lab Design Topology.</p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section1">1. Loop two physical ports on SRX.</span></strong></p>
+
+<p>To create a 5-router lab on a single SRX, we need to create a closed loop that allows traffic to pass between our different virtual instances. Since the SRX 100 has limited interfaces, we’ll use a two physical ports with vlan tag sub-interfaces.</p>
+
+<p><strong>The Physical Connection</strong></p>
+
+<p>Use a standard patch cable to connect two adjacent physical ports on your SRX 100. For this lab, we’ll use:</p>
+
+<ul>
+  <li>fe-0/0/6</li>
+  <li>fe-0/0/7</li>
+</ul>
+
+<p><img src="/images/juniper_virtlab/3.png" alt="Juniper SRX" title="Custom UTP cable for loop" /><br />
+Figure 2: The custom UTP CAT 5 patch cord used for the physical loop.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set interfaces fe-0/0/6 flexible-vlan-tagging
+set interfaces fe-0/0/6 fastether-options auto-negotiation  
+set interfaces fe-0/0/7 flexible-vlan-tagging
+set interfaces fe-0/0/7 fastether-options auto-negotiation 
+commit
+</code></pre></div></div>
+
+<p>This physical connection will act as our high-speed, internal backbone fabric, allowing the virtual routers what we will create later to talk to each other without needing external equipment.</p>
+
+<p><img src="/images/juniper_virtlab/4.png" alt="Juniper SRX" title="Juniper SRX Lab" /><br />
+Figure 3. SRX Ports Looped with UTP Cable.</p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section2">2. Configure Packet Mode and Disable Security Flow Juniper SRX.</span></strong><br />
+The SRX is a firewall, meaning it runs in flow mode by default, inspecting traffic and requiring security policies and zones. To turn it into a dedicated, multi-router platform that simply forwards packets, we must switch it to packet mode.</p>
+
+<p>⚠️ Warning: This step removes all firewall functions and security services.</p>
+
+<p><strong>Switching the SRX to Router Mode (In Next 1 minute if we will not calculate SRX boot time)</strong></p>
+<ul>
+  <li>Delete Existing Security Configuration: We first wipe all pre-existing security settings that would conflict with packet mode.</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>delete security
+</code></pre></div></div>
+<ul>
+  <li>Enable Packet Mode: We instruct the Packet Forwarding Engine (PFE) to process traffic on a per-packet basis, like a traditional router. 
+I like to enable for all address families.</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set security forwarding-options family inet mode packet-based
+set security forwarding-options family inet6 mode packet-based
+set security forwarding-options family mpls mode packet-based
+set security forwarding-options family iso mode packet-based
+</code></pre></div></div>
+<ul>
+  <li>Commit and Reboot, this change is fundamental and requires a system reboot to take effect.</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>commit and-quit
+request system reboot
+</code></pre></div></div>
+<p>(Go grab a coffee while it reboots! You’ve already completed the hardest part.)</p>
+
+<p>Now that our SRX is a pure router, we can segment it into five distinct logical routers using Virtual Router (VR) instances. A VR instance is a type of routing instance that creates completely separate routing tables and forwarding domains.</p>
+
+<p><strong><span style="color:#074080; font-size:18.0pt;" id="section3">3. Create the 5-Router Topology with Virtual Router Instance type.</span></strong></p>
+
+<p><strong>Topology Goal</strong>
+We will create five isolated routing domains (AS1 through AS4 and PE) and then connect them using logical interfaces to form a virtual network.</p>
+
+<p><strong>The Virtual Router Configuration (Next 5 minutes)</strong></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set routing-instances AS1 instance-type virtual-router
+set routing-instances AS2 instance-type virtual-router
+set routing-instances AS3 instance-type virtual-router
+set routing-instances AS4 instance-type virtual-router
+Global routing table on Juniper SRX will represent PE.
+</code></pre></div></div>
+
+<p><img src="/images/juniper_virtlab/5.png" alt="Juniper SRX" title="Juniper SRX Virtual Routers" /><br />
+Figure 4: Representing logical connectivity between routing instances.</p>
+
+<p><strong>Next Step: Connecting the Virtual Routers</strong></p>
+
+<p>Below you can find the interface configuration for fe-0/0/6 and fe-0/0/7:</p>
+
+<p><strong>fe-0/0/6</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set interfaces fe-0/0/6 unit 12 vlan-id 12
+set interfaces fe-0/0/6 unit 12 family inet address 10.90.12.2/30
+set interfaces fe-0/0/6 unit 13 vlan-id 13
+set interfaces fe-0/0/6 unit 13 family inet address 10.90.13.2/30
+set interfaces fe-0/0/6 unit 23 vlan-id 23
+set interfaces fe-0/0/6 unit 23 family inet address 10.90.23.2/30
+set interfaces fe-0/0/6 unit 24 vlan-id 24
+set interfaces fe-0/0/6 unit 24 family inet address 10.90.24.2/30
+set interfaces fe-0/0/6 unit 113 vlan-id 113
+set interfaces fe-0/0/6 unit 113 family inet address 10.90.113.2/30
+set interfaces fe-0/0/6 unit 114 vlan-id 114
+set interfaces fe-0/0/6 unit 114 family inet address 10.90.114.2/30
+</code></pre></div></div>
+<p><strong>fe-0/0/7</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set interfaces fe-0/0/7 unit 12 vlan-id 12
+set interfaces fe-0/0/7 unit 12 family inet address 10.90.12.1/30
+set interfaces fe-0/0/7 unit 13 vlan-id 13
+set interfaces fe-0/0/7 unit 13 family inet address 10.90.13.1/30
+set interfaces fe-0/0/7 unit 23 vlan-id 23
+set interfaces fe-0/0/7 unit 23 family inet address 10.90.23.1/30
+set interfaces fe-0/0/7 unit 24 vlan-id 24
+set interfaces fe-0/0/7 unit 24 family inet address 10.90.24.1/30
+set interfaces fe-0/0/7 unit 113 vlan-id 113
+set interfaces fe-0/0/7 unit 113 family inet address 10.90.113.1/30
+set interfaces fe-0/0/7 unit 114 vlan-id 114
+set interfaces fe-0/0/7 unit 114 family inet address 10.90.114.1/30
+</code></pre></div></div>
+
+<p><strong>Assigning interfaces to virtual router instance AS1</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set routing-instances AS1 interface fe-0/0/7.12
+set routing-instances AS1 interface fe-0/0/7.13
+set routing-instances AS1 interface lo0.1
+</code></pre></div></div>
+
+<p><strong>Assigning interfaces to virtual router instance AS2</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set routing-instances AS2 interface fe-0/0/6.12
+set routing-instances AS2 interface fe-0/0/6.23
+set routing-instances AS2 interface fe-0/0/7.24
+set routing-instances AS2 interface lo0.2
+</code></pre></div></div>
+
+<p><strong>Assigning interfaces to virtual router instance AS3</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set routing-instances AS3 interface fe-0/0/6.13
+set routing-instances AS3 interface fe-0/0/7.23
+set routing-instances AS3 interface fe-0/0/7.113
+set routing-instances AS3 interface lo0.3
+</code></pre></div></div>
+
+<p><strong>Assigning interfaces to virtual router instance AS4</strong></p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set routing-instances AS4 interface fe-0/0/6.24
+set routing-instances AS4 interface fe-0/0/7.114
+set routing-instances AS4 interface lo0.4
+</code></pre></div></div>
+<p>The final result of the configuration is shown in Figure 5.</p>
+
+<p>For routing and inter-instance communication, your newly created virtual routers support a wide range of protocols, including:</p>
+
+<ul>
+  <li>Static Routing</li>
+  <li>OSPF (Open Shortest Path First)</li>
+  <li>ISIS (Intermediate System to Intermediate System)</li>
+  <li>BGP (Border Gateway Protocol)</li>
+  <li>MPLS (Multi-Protocol Label Switching)</li>
+  <li>With support for IPv4 and IPv6.</li>
+</ul>
+
+<p><img src="/images/juniper_virtlab/6.png" alt="Juniper SRX" title="Juniper SRX Virtual Routers" /><br />
+Figure 5. 5 Routers network topology.</p>
+
+<p><strong>The 15-Minute Network is Live!</strong></p>
+
+<p>Congratulations! You’ve successfully converted your single SRX 100 into a complex 5-node routing lab, all within the time it takes to brew a cup of tea. This setup proves that complex labs don’t require complex hardware. Use this topology to master OSPF, BGP, or MPLS.</p>
+
+<p><strong>Go build something great!</strong></p>
+
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Juniper" /><summary type="html"><![CDATA[In this post, we’ll show you exactly how to deploy a fully connected 5-router topology in less than 15 minutes. Transforming your Juniper SRX 100 from an old forgotten box into a high-speed engine for learning and validation.]]></summary></entry><entry><title type="html">Understanding Contracts in Cisco ACI: The Backbone of Network Security</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-contracts/" rel="alternate" type="text/html" title="Understanding Contracts in Cisco ACI: The Backbone of Network Security" /><published>2025-10-05T00:00:00+00:00</published><updated>2025-10-05T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-contracts</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-contracts/"><![CDATA[<p align="center">
 <img src="/images/aci_contracts/1.png" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -241,7 +431,7 @@ External EPGs that are associated with L3Outs and are part of a VRF are also inc
 
 <p>Table 1. Representing comparison Preferred Groups vs. vzAny vs. Unenforced VRF.</p>
 
-<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for applications, but that raises a critical question, how do these EPGs actually talk to each other securely?]]></summary></entry><entry><title type="html">Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-core-build/" rel="alternate" type="text/html" title="Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained" /><published>2025-06-16T00:00:00+00:00</published><updated>2025-06-16T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-core-build</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-core-build/"><![CDATA[<p align="center">
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[We recently explored the foundational elements of Cisco ACI, diving into how Tenants, VRFs, Bridge Domains, and EPGs serve as the logical building blocks for organizing your network. We saw how these components create a structured environment for applications, but that raises a critical question, how do these EPGs actually talk to each other securely?]]></summary></entry><entry><title type="html">Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained</title><link href="http://0.0.0.0:4000/aci/aci-core-build/" rel="alternate" type="text/html" title="Cisco ACI’s Core Building Blocks: Tenants to EPGs Explained" /><published>2025-06-16T00:00:00+00:00</published><updated>2025-06-16T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-core-build</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-core-build/"><![CDATA[<p align="center">
 <img src="/images/aci_building_blocks/1.png" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -434,7 +624,7 @@ Associate the ESG as a Provider or Consumer of the contract, just like you would
 
 <p>By using ESGs, ACI provides an additional layer of flexibility and powerful tools for defining and enforcing security policies, especially beneficial in complex and evolving data center environments.</p>
 
-<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[In the world of modern data centers, Cisco Application Centric Infrastructure (ACI) stands out as a powerful solution for network automation, policy enforcement, and application agility.]]></summary></entry><entry><title type="html">Understanding Cisco ACI Access Policies: A Practical Guide</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-access-polices/" rel="alternate" type="text/html" title="Understanding Cisco ACI Access Policies: A Practical Guide" /><published>2025-05-28T00:00:00+00:00</published><updated>2025-05-28T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-access-polices</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-access-polices/"><![CDATA[<p align="center">
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[In the world of modern data centers, Cisco Application Centric Infrastructure (ACI) stands out as a powerful solution for network automation, policy enforcement, and application agility.]]></summary></entry><entry><title type="html">Understanding Cisco ACI Access Policies: A Practical Guide</title><link href="http://0.0.0.0:4000/aci/aci-access-polices/" rel="alternate" type="text/html" title="Understanding Cisco ACI Access Policies: A Practical Guide" /><published>2025-05-28T00:00:00+00:00</published><updated>2025-05-28T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-access-polices</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-access-polices/"><![CDATA[<p align="center">
 <img src="/images/aci_access_polices/1.gif" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -605,7 +795,7 @@ Secure and controlled access is fundamental to any network. This guide walks you
 </p>
 <p>Figure 12.End to end workflow to setup Virtual Port Channel (vPC) up and running on leaf switches.</p>
 
-<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[Understanding Cisco ACI Access Policies doesn’t have to be complicated. This practical guide simplifies the core concepts and clearly shows you what you need to know.]]></summary></entry><entry><title type="html">Designing with Cisco ACI</title><link href="http://0.0.0.0:4000/cisco%20aci/designing-with-aci/" rel="alternate" type="text/html" title="Designing with Cisco ACI" /><published>2025-03-30T00:00:00+00:00</published><updated>2025-03-30T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/designing-with-aci</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/designing-with-aci/"><![CDATA[<p align="center">
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[Understanding Cisco ACI Access Policies doesn’t have to be complicated. This practical guide simplifies the core concepts and clearly shows you what you need to know.]]></summary></entry><entry><title type="html">Designing with Cisco ACI</title><link href="http://0.0.0.0:4000/aci/designing-with-aci/" rel="alternate" type="text/html" title="Designing with Cisco ACI" /><published>2025-03-30T00:00:00+00:00</published><updated>2025-03-30T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/designing-with-aci</id><content type="html" xml:base="http://0.0.0.0:4000/aci/designing-with-aci/"><![CDATA[<p align="center">
 <img src="/images/designing_with_aci/1.gif" alt="ACI-top" title="ACI-top" /> 
 </p>
 
@@ -881,7 +1071,7 @@ Policies and configurations can be consistently applied across all sites and pod
 Centralized management and automation reduce administrative overhead and operational complexity, making it easier to manage large-scale networks.</li>
 </ul>
 
-<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[Welcome to “Designing with Cisco ACI,” where we will dive into the Cisco ACI principals of creating robust, scalable, and efficient network architectures using Cisco’s Application Centric Infrastructure (ACI).]]></summary></entry><entry><title type="html">Unlocking the Power of Cisco ACI 6.0</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-6-new-features/" rel="alternate" type="text/html" title="Unlocking the Power of Cisco ACI 6.0" /><published>2024-09-27T00:00:00+00:00</published><updated>2024-09-27T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-6-new-features</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-6-new-features/"><![CDATA[<p align="center">
+<p><a href="#top">Back to Top</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[Welcome to “Designing with Cisco ACI,” where we will dive into the Cisco ACI principals of creating robust, scalable, and efficient network architectures using Cisco’s Application Centric Infrastructure (ACI).]]></summary></entry><entry><title type="html">Unlocking the Power of Cisco ACI 6.0</title><link href="http://0.0.0.0:4000/aci/aci-6-new-features/" rel="alternate" type="text/html" title="Unlocking the Power of Cisco ACI 6.0" /><published>2024-09-27T00:00:00+00:00</published><updated>2024-09-27T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-6-new-features</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-6-new-features/"><![CDATA[<p align="center">
 <img src="/images/aci_6_new_features/1.png" alt="ACI_60" title="ACI_60" />   
 </p>
 <p style="text-align: justify;">
@@ -1042,7 +1232,7 @@ If you have plan to implement vzAny inside multi-site design, please check all d
 
 <p>References: <br />
 <a href="https://www.cisco.com/c/en/us/td/docs/dcn/aci/apic/6x/release-notes/cisco-apic-release-notes-611.html" target="_blank">Cisco Application Policy Infrastructure Controller</a> <br />
-<a href="https://www.cisco.com/c/en/us/td/docs/dcn/aci/apic/all/cisco-aci-releases-changes-in-behavior.html" target="_blank">Cisco ACI Releases Changes in Behavior</a></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[The Cisco ACI 6.0 release has been available for a couple of months now. Let’s check out what it brings to network engineers and IT professionals. Experience a new era of enhanced performance, security, and automation capabilities. In this blog, we’ll dive into the key enhancements of Cisco ACI 6.0 and explore how they can empower your network infrastructure.]]></summary></entry><entry><title type="html">Mastering Cisco ACI Physical Design</title><link href="http://0.0.0.0:4000/cisco%20aci/physical-design/" rel="alternate" type="text/html" title="Mastering Cisco ACI Physical Design" /><published>2024-07-07T00:00:00+00:00</published><updated>2024-07-07T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/physical-design</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/physical-design/"><![CDATA[<p align="center">
+<a href="https://www.cisco.com/c/en/us/td/docs/dcn/aci/apic/all/cisco-aci-releases-changes-in-behavior.html" target="_blank">Cisco ACI Releases Changes in Behavior</a></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[The Cisco ACI 6.0 release has been available for a couple of months now. Let’s check out what it brings to network engineers and IT professionals. Experience a new era of enhanced performance, security, and automation capabilities. In this blog, we’ll dive into the key enhancements of Cisco ACI 6.0 and explore how they can empower your network infrastructure.]]></summary></entry><entry><title type="html">Mastering Cisco ACI Physical Design</title><link href="http://0.0.0.0:4000/aci/physical-design/" rel="alternate" type="text/html" title="Mastering Cisco ACI Physical Design" /><published>2024-07-07T00:00:00+00:00</published><updated>2024-07-07T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/physical-design</id><content type="html" xml:base="http://0.0.0.0:4000/aci/physical-design/"><![CDATA[<p align="center">
 <img src="/images/phy_design/2.png" alt="Switch SFP Cables" title="ACI Phy Design" /> 
 </p>
 <p style="text-align: justify;">
@@ -1215,7 +1405,7 @@ For a comprehensive understanding and decoding of all Nexus Part Numbers names, 
 <img class="center" style="float" width="800" height="400" src="/images/phy_design/taxonomy_nk9.png" alt="taxonomynk9" title="PHY" />  
 </p>
 
-<p><strong>Figure 4</strong> Cheet-sheet for decoding Cisco Nexus 9000 Series Part Numbers</p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[Let's dive into the world of Cisco ACI physical design. After all, we all know that without hardware, there is no cloud or networking.]]></summary></entry><entry><title type="html">Cisco ACI Fabric - APIC Day 1 configuration</title><link href="http://0.0.0.0:4000/cisco%20aci/aci-apic-initial-setup/" rel="alternate" type="text/html" title="Cisco ACI Fabric - APIC Day 1 configuration" /><published>2022-12-01T00:00:00+00:00</published><updated>2022-12-01T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/aci-apic-initial-setup</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/aci-apic-initial-setup/"><![CDATA[<p align="center">
+<p><strong>Figure 4</strong> Cheet-sheet for decoding Cisco Nexus 9000 Series Part Numbers</p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[Let's dive into the world of Cisco ACI physical design. After all, we all know that without hardware, there is no cloud or networking.]]></summary></entry><entry><title type="html">Cisco ACI Fabric - APIC Day 1 configuration</title><link href="http://0.0.0.0:4000/aci/aci-apic-initial-setup/" rel="alternate" type="text/html" title="Cisco ACI Fabric - APIC Day 1 configuration" /><published>2022-12-01T00:00:00+00:00</published><updated>2022-12-01T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/aci-apic-initial-setup</id><content type="html" xml:base="http://0.0.0.0:4000/aci/aci-apic-initial-setup/"><![CDATA[<p align="center">
 <img src="/images/apic_day_0_config/apic.jpg" alt="Cisco ACI APIC" title="Cisco APIC interconnects" />  
 </p>
 <p style="text-align: justify;">
@@ -1346,7 +1536,7 @@ Next few steps will describe how we can disable  messages from Cisco Smart Softw
 
 <p><img class="center" width="500" height="400" src="/images/apic_day_0_config/21.jpg" alt="APIC notification" title="APIC notification" /></p>
 
-<p>I have walked through most important parameters for Cisco ACI Fabric. Now you can start to play with Cisco ACI Fabric network objects or you can proceed with fine tunning for the production environment. 😎</p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator.]]></summary></entry><entry><title type="html">Cisco ACI Simulator APIC Initial setup</title><link href="http://0.0.0.0:4000/cisco%20aci/acisim-init-conf/" rel="alternate" type="text/html" title="Cisco ACI Simulator APIC Initial setup" /><published>2022-11-10T00:00:00+00:00</published><updated>2022-11-10T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/acisim-init-conf</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/acisim-init-conf/"><![CDATA[<p align="center">
+<p>I have walked through most important parameters for Cisco ACI Fabric. Now you can start to play with Cisco ACI Fabric network objects or you can proceed with fine tunning for the production environment. 😎</p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[This time I will go through configuration steps for provisioning switches on Cisco ACI Fabric, NTP, DNS and BGP Route Reflectors. Steps described in this post are applicable for Cisco ACI Fabric and Cisco ACI simulator.]]></summary></entry><entry><title type="html">Cisco ACI Simulator APIC Initial setup</title><link href="http://0.0.0.0:4000/aci/acisim-init-conf/" rel="alternate" type="text/html" title="Cisco ACI Simulator APIC Initial setup" /><published>2022-11-10T00:00:00+00:00</published><updated>2022-11-10T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/acisim-init-conf</id><content type="html" xml:base="http://0.0.0.0:4000/aci/acisim-init-conf/"><![CDATA[<p align="center">
 <img src="/images/acisim_init_conf/subject.jpg" alt="Cisco ACI Simulator" title="Cisco ACI Initial Configuration" />  
 </p>
 <p style="text-align: justify;">
@@ -1412,7 +1602,7 @@ a:active {
   margin-right: auto;
 }
 </style>
-</head>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[If you already read my last post How to run Cisco ACI Simulator on KVM host you know that now we need to do first step and go through Cisco APIC initial configuration setup. If you need help this post is right place for you. So let' go and see what we need to do.]]></summary></entry><entry><title type="html">How to run Cisco ACI Simulator on KVM host</title><link href="http://0.0.0.0:4000/cisco%20aci/acisim-on-kvm/" rel="alternate" type="text/html" title="How to run Cisco ACI Simulator on KVM host" /><published>2022-06-13T00:00:00+00:00</published><updated>2022-06-13T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cisco%20aci/acisim-on-kvm</id><content type="html" xml:base="http://0.0.0.0:4000/cisco%20aci/acisim-on-kvm/"><![CDATA[<p align="center">
+</head>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[If you already read my last post How to run Cisco ACI Simulator on KVM host you know that now we need to do first step and go through Cisco APIC initial configuration setup. If you need help this post is right place for you. So let' go and see what we need to do.]]></summary></entry><entry><title type="html">How to run Cisco ACI Simulator on KVM host</title><link href="http://0.0.0.0:4000/aci/acisim-on-kvm/" rel="alternate" type="text/html" title="How to run Cisco ACI Simulator on KVM host" /><published>2022-06-13T00:00:00+00:00</published><updated>2022-06-13T00:00:00+00:00</updated><id>http://0.0.0.0:4000/aci/acisim-on-kvm</id><content type="html" xml:base="http://0.0.0.0:4000/aci/acisim-on-kvm/"><![CDATA[<p align="center">
 <img src="/images/acisim_on_kvm/subject.jpg" alt="Cisco ACI Simulator" title="Cisco ACI Simulator Spine leaf and APIC" />  
 </p>
 <p style="text-align: justify;">
@@ -1546,210 +1736,4 @@ for ACISIM VM.</li>
 <li>In this Blog post I have used 8x vCPS and 32 GB of RAM below this it will not work.</li>
 <li>We can use Cisco ACI simulator on KVM host, even if it is not officially supported by vendor.</li>
 </ul>
-<p><strong><span style="color:#074080">Enjoy your ACI simulator and happy testing!!!</span></strong></p>]]></content><author><name></name></author><category term="Cisco ACI" /><summary type="html"><![CDATA[As officially ACI Simulator is not supported on KVM host and I didn't have ESXi in my lab I have decided to do experiment. Moreover I have played with amount of hardware resource necessary for this experiment. If you would like to know result of this experiment, you can proceed and read rest of the post.]]></summary></entry><entry><title type="html">Five easy steps to configure static VxLAN Part 4</title><link href="http://0.0.0.0:4000/cumulus%20linux/static-vxlan-part4/" rel="alternate" type="text/html" title="Five easy steps to configure static VxLAN Part 4" /><published>2021-12-24T00:00:00+00:00</published><updated>2021-12-24T00:00:00+00:00</updated><id>http://0.0.0.0:4000/cumulus%20linux/static-vxlan-part4</id><content type="html" xml:base="http://0.0.0.0:4000/cumulus%20linux/static-vxlan-part4/"><![CDATA[<style>
-p1 {
-  font-size: 11px;
-}
-p2 {
-  font-size: 12px;
-}
-</style>
-
-<p align="center">
-<img src="/images/static_vxlan/vxlan_tunnel4.jpg" alt="Overlay VxLAN Cumulus Linux" title="VxLAN between Cumulus VX and Juniper vMX" />  
-</p>
-<p style="text-align: justify;">
-Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs.
-</p>
-
-<p style="text-align: justify;">
-Data center gateways will be simulated with Cumulus Linux VX vSwitch and Juniper vMX virtual router. This time I will skip installation and configuration of the following:  
-<ul>
-<li>namespaces for simulation of VM1 and VM3</li>
-<li>Download VPCS and configuration</li>
-<li>Configuration of VxLAN tunnels from srv and srv1 to Cumulus VX switch as it will be the same like in Part 3.</li>
-</ul>
-All details related to the above configuration and deployment you can find in blogposts <a href="/vxlan/static-vxlan-part2/index.html">Part 2</a> and <a href="/vxlan/static-vxlan-part3/index.html">Part 3</a>.
-</p>
-
-<p align="center"> 
-  <img src="/images/static_vxlan/net_diag4.jpg" alt="VxLAN, VTEP, Overlay Network" title="VxLAN Network diagram" /> 
-</p>
-
-<p><strong>Virtual router, switch and linux host machines:</strong></p>
-
-<table>
-  <thead>
-    <tr>
-      <th style="text-align: left">VM name</th>
-      <th style="text-align: left">OS Version</th>
-      <th style="text-align: left">Extra installed SW</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align: left">srv</td>
-      <td style="text-align: left">Ubuntu 20.04</td>
-      <td style="text-align: left">bridge-utils</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">srv1</td>
-      <td style="text-align: left">Ubuntu 20.04</td>
-      <td style="text-align: left">bridge-utils</td>
-    </tr>
-    <tr>
-      <td style="text-align: left">virtual switch</td>
-      <td style="text-align: left">Cumulus Linux 4.4.1 VX (Nvidia)</td>
-      <td style="text-align: left"> </td>
-    </tr>
-    <tr>
-      <td style="text-align: left">virtual router</td>
-      <td style="text-align: left">Juniper vMX  JUNOS 18.4R1.8</td>
-      <td style="text-align: left"> </td>
-    </tr>
-  </tbody>
-</table>
-
-<p><strong><span style="color:#074080">Step 1. Configure interfaces on dcgw1 and dcgw2</span></strong></p>
-
-<p>On dcgw1 (Cumulus Linux) configure interface for OSPF peering with dc-interconnect router</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp3 ip address 172.21.100.1/30
-</code></pre></div></div>
-<p>add loopback which will be used for VTEP termination point.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add loopback lo ip address 192.168.1.4/32
-</code></pre></div></div>
-<p>Above we should repeat for dcgw2 (Juniper vMX)</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set interfaces xe-0/0/4 unit 0 family inet address 172.21.101.1/30  
-</code></pre></div></div>
-<p>add loopback which will be used for VTEP termination point.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set interfaces lo0 unit 5 family inet address 192.168.1.5/32  
-</code></pre></div></div>
-<p><strong><span style="color:#074080">Step 2. Configure dc-interconnect L3 switch interfaces(Cumulus Linux VX)</span></strong></p>
-
-<p>Add loopback</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add loopback lo ip address 2.2.2.2/32
-</code></pre></div></div>
-<p>Add interface for peering with dcgw1</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp3 ip address 172.21.100.2/30
-</code></pre></div></div>
-<p>Add interface for peering with dcgw2</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp1 ip address 172.21.101.2/30
-</code></pre></div></div>
-<p><strong><span style="color:#074080">Step 3. Configuration of  OSPF peering</span></strong></p>
-
-<p><u>Apply on dcgw1.</u></p>
-
-<p>Set router ID.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf router-id 192.168.1.4
-</code></pre></div></div>
-<p>Add specific networks to OSPF.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf network 192.168.1.4/32 area 1
-net add ospf network 172.21.100.0/30 area 1
-</code></pre></div></div>
-<p>Change network type on link between dcgw1 and dc-interconnect.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp3 ospf network point-to-point
-</code></pre></div></div>
-<p>On unnecessary interfaces stop sending OSPF messages.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf passive-interface swp1
-net add ospf passive-interface swp2
-net add ospf passive-interface swp4
-net add ospf passive-interface swp5
-net add ospf passive-interface swp6
-net add ospf passive-interface swp7
-</code></pre></div></div>
-<p><u>Apply on dc-interconnect.</u></p>
-
-<p>Set router ID.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf router-id 2.2.2.2
-</code></pre></div></div>
-<p>Add specific networks to OSPF.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf network 2.2.2.2/32 area 1
-net add ospf network 172.21.100.0/30 area 1
-net add ospf network 172.21.101.0/30 area 1
-</code></pre></div></div>
-<p>Change network type on links between dc-interconnect dcgw1 and dcgw2.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add interface swp3 ospf network point-to-point
-net add interface swp1 ospf network point-to-point
-</code></pre></div></div>
-<p>On unnecessary interfaces stop sending OSPF messages.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add ospf passive-interface swp2
-net add ospf passive-interface swp4
-net add ospf passive-interface swp5
-net add ospf passive-interface swp6
-net add ospf passive-interface swp67
-</code></pre></div></div>
-<p><u>Apply on dcgw2.</u></p>
-
-<p>Set router ID.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set routing-options router-id 192.168.1.5
-</code></pre></div></div>
-<p>Change network type on links between dc-interconnect and dcgw2 and enable OSPF on xe-0/0/4 (172.21.101.0/30).</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set protocols ospf area 0.0.0.1 interface xe-0/0/4.0 interface-type p2p
-</code></pre></div></div>
-<p>Enable OSPF on loopback</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set protocols ospf area 0.0.0.1 interface lo0.5
-</code></pre></div></div>
-<p>Check OSPF routes on dc-interconnect L3 switch.</p>
-
-<p><img style="center" src="/images/static_vxlan/ospf_check_dcintcon.jpg" alt="Show OSPF routes" title="OSPF Routing" /></p>
-
-<p><strong><span style="color:#074080">Step 4. Add static VxLAN tunnels between dcgw1 and dcgw2</span></strong><br />
-<u>Apply on dcgw1.</u><br />
-Create VxLAN tunnel interface.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-103 vxlan id 103
-</code></pre></div></div>
-<p>Add vni-103 to specific bridge.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add bridge br-22 ports vni-103
-</code></pre></div></div>
-<p>Configure Loopback primary address for VTEP source.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-103 vxlan local-tunnelip 192.168.1.4
-</code></pre></div></div>
-<p>Configure remote VTEP on dcgw2.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>net add vxlan vni-103 vxlan remoteip 192.168.1.5
-</code></pre></div></div>
-<p><u>Apply on dcgw2.</u><br />
-Create bridge domain.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set bridge-domains br-vl22 vlan-id 22
-set bridge-domains br-vl22 vxlan vni 103
-</code></pre></div></div>
-<p>Enable “ingress-node-replication” this will handle incoming broadcast, unknown unicast, or multicast (BUM) traffic.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set bridge-domains br-vl22 vxlan ingress-node-replication
-</code></pre></div></div>
-<p>Configure Loopback lo0.5 for VTEP source.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set switch-options vtep-source-interface lo0.5
-</code></pre></div></div>
-<p>Configure remote VTEP on dcgw1.</p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>set switch-options remote-vtep-list 192.168.1.4
-</code></pre></div></div>
-<p><strong><span style="color:#074080">Step 5. Connectivity check </span></strong></p>
-
-<p>Run PING command from VM1, VM3 and DB server (VPCS)
-<img style="center" src="/images/static_vxlan/vm1_vm3_ping_db_part4.jpg" alt="Ping from namespace" title="Connectivity check with PING command" /></p>
-
-<p><u>Issue ping from VM3 (namespace)</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm3 ping 192.168.22.4 -- &gt; remote IP on DB server.
-</code></pre></div></div>
-<p><img style="float" width="650" height="150" src="/images/static_vxlan/vm3_ping_db_part4.jpg" alt=" PING ICMP remote DB Server" title="VM3 Ping remote DB server" /></p>
-
-<p><img style="float" width="750" height="250" src="/images/static_vxlan/vm3_ping_db_part4_v2.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
-
-<p><u>Issue ping from VM1 (namespace)</u></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sudo ip netns exec vm1 ping 192.168.22.4 -- &gt; remote IP on DB server.
-</code></pre></div></div>
-<p><img style="float" width="650" height="150" src="/images/static_vxlan/vm1_ping_db_part4.jpg" alt=" PING ICMP remote DB Server" title="VM3 Ping remote DB server" /></p>
-
-<p><img style="float" width="750" height="250" src="/images/static_vxlan/vm1_ping_db_part4_v2.jpg" alt="L2 frame, VxLAN, wireshark, packet capture, pcap" title="Wireshark VxLAN packet capture" /></p>
-
-<p>From the capture you can see that two VxLAN tunnels were used for interconnection with Cumulus VX virtual switch. Both tunnels landed on to one bridge on Cumulus VX virtual switch. That way we achieve communication between two VMs and DB server (VPCS).</p>
-
-<p><u>Issue ping from DB server (VPCS) to check connectivity with VM1 and VM3</u></p>
-
-<p><img style="center" width="750" height="250" src="/images/static_vxlan/db_srv_ping_vm3_pcap_part3.jpg" alt="Ping from VPCS" title="Connectivity check with PING command" /></p>
-
-<p>Based on the ping and packet captures we can conclude that we have L2 connectivity between two data centers. It means that we build overlay network on top of classical L3 network connectivity.</p>
-
-<p><br />
-<strong><a href="/vxlan/static_vxlan_part1/index.html" target="_blank">Part 1 Static VxLAN between Ubuntu hosts</a></strong><br />
-<strong><a href="/vxlan/static-vxlan-part2/index.html" target="_blank">Part 2 Static VxLAN between Ubuntu and Cumulus VX vSwicth</a></strong><br />
-<strong><a href="/vxlan/static-vxlan-part3/index.html" target="_blank">Part 3 Static VxLAN between Ubuntu Hosts and Cumulus VX vSwitch DC Gateway</a></strong><br />
-<br /></p>]]></content><author><name></name></author><category term="Cumulus Linux" /><summary type="html"><![CDATA[Part 4 final countdown with static VxLAN. In this post I will cover the case when we need to extend L2 domain between Data centers. According to this VxLAN tunnel will be established between two DC gateways and DC gateways will represent VTEPs.]]></summary></entry></feed>
+<p><strong><span style="color:#074080">Enjoy your ACI simulator and happy testing!!!</span></strong></p>]]></content><author><name></name></author><category term="ACI" /><summary type="html"><![CDATA[As officially ACI Simulator is not supported on KVM host and I didn't have ESXi in my lab I have decided to do experiment. Moreover I have played with amount of hardware resource necessary for this experiment. If you would like to know result of this experiment, you can proceed and read rest of the post.]]></summary></entry></feed>

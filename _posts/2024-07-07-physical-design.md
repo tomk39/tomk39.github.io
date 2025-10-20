@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Mastering Cisco ACI Physical Design
-categories: ["Cisco ACI"]
+categories: ["ACI"]
 ---
 
 <p align="center">

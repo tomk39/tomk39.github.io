@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Five easy steps to configure static VxLAN Part 1
-categories: ["Linux Networking"]
+categories: ["VxLAN"]
 ---
 <p align="center">
 <img src="/images/static_vxlan/vxlan_tunnel.jpg" alt="VxLAN Overlay Ubuntu Intro" title="Introduction to VxLAN"> 

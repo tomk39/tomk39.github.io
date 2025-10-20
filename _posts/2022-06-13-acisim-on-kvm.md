@@ -1,7 +1,7 @@
 ---
 layout: post
 title: How to run Cisco ACI Simulator on KVM host
-categories: ["Cisco ACI"]
+categories: ["ACI"]
 comments: true
 ---
 

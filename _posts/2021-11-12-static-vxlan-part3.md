@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Five easy steps to configure static VxLAN Part 3 
-categories: ["Cumulus Linux"]
+categories: ["VxLAN"]
 comments: true
 ---
 <style>
